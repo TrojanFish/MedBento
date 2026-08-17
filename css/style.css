@@ -1422,3 +1422,46 @@ body {
   text-align: center;
   line-height: 1.6;
 }
+
+/* ==========================================================================
+   PWA & MOBILE WEBAPP STANDALONE STYLES
+   ========================================================================== */
+@media all and (display-mode: standalone) {
+  body {
+    user-select: none;
+    -webkit-user-select: none;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  /* Allow text selection in inputs, editors and tables */
+  input, textarea, [contenteditable="true"], .report-textarea, .modal-body, .medical-table {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+
+  .app-header {
+    padding-top: calc(14px + env(safe-area-inset-top, 0px));
+  }
+}
+
+/* Mobile Responsiveness for Header Actions */
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .header-actions .btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}

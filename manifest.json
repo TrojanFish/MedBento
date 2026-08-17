@@ -1,0 +1,55 @@
+{
+  "name": "MedBento AI · 医学研究 Bento 可视化与切片系统",
+  "short_name": "MedBento",
+  "description": "医学研究报告 Bento 动态可视化与小红书/抖音 5~8 张高清自适应智能切片系统",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#070B14",
+  "theme_color": "#00E5FF",
+  "orientation": "any",
+  "lang": "zh-CN",
+  "categories": ["medical", "education", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Bento 仪表盘",
+      "short_name": "仪表盘",
+      "description": "打开医学研究 Bento 动态可视化视图",
+      "url": "/?view=bento",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "自媒体切图工作台",
+      "short_name": "自媒体切图",
+      "description": "打开小红书/抖音高清自适应切片与导出工作区",
+      "url": "/?view=social",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

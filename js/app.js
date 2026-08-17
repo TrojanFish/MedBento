@@ -58,8 +58,70 @@ const App = {
     }
 
     this.bindEvents();
+    this.setupPwaInstall();
     this.refreshAllViews();
     this.updateMarkdownPreview();
+
+    // Check PWA shortcut URL parameter (?view=social or ?view=bento)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("view") === "social") {
+      this.switchView("social");
+    }
+  },
+
+  /**
+   * PWA WebApp Service Worker Registration and Install Trigger
+   */
+  setupPwaInstall() {
+    let deferredPrompt = null;
+    const btnInstall = document.getElementById("btn-pwa-install");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (btnInstall) {
+        btnInstall.style.display = "inline-flex";
+      }
+    });
+
+    if (btnInstall) {
+      btnInstall.addEventListener("click", async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          if (outcome === "accepted") {
+            this.showToast("🎉 MedBento 已成功安装为本地 WebApp！", "success");
+          }
+          deferredPrompt = null;
+          btnInstall.style.display = "none";
+        } else {
+          const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+          if (isIos) {
+            this.showToast("💡 提示：点击 Safari 底部的【分享】按钮，然后选择【添加到主屏幕】即可安装为独立 App！", "info");
+          } else {
+            this.showToast("💡 提示：您可以在浏览器地址栏右侧点击【安装应用】图标一键安装为独立桌面 App！", "info");
+          }
+        }
+      });
+    }
+
+    window.addEventListener("appinstalled", () => {
+      console.log("[PWA] MedBento App was successfully installed");
+      if (btnInstall) btnInstall.style.display = "none";
+    });
+
+    // Register Service Worker for offline shell and lightning reloads
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/sw.js")
+          .then((reg) => {
+            console.log("[PWA] Service Worker active with scope:", reg.scope);
+          })
+          .catch((err) => {
+            console.warn("[PWA] Service Worker registration failed:", err);
+          });
+      });
+    }
   },
 
   /**

@@ -104,6 +104,10 @@ VALID_SESSIONS = set()
 mimetypes.add_type("application/javascript", ".js")
 mimetypes.add_type("text/css", ".css")
 mimetypes.add_type("application/json", ".json")
+mimetypes.add_type("application/manifest+json", ".webmanifest")
+mimetypes.add_type("image/svg+xml", ".svg")
+mimetypes.add_type("image/png", ".png")
+mimetypes.add_type("image/x-icon", ".ico")
 mimetypes.add_type("application/pdf", ".pdf")
 mimetypes.add_type("text/markdown", ".md")
 
@@ -277,8 +281,13 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
             self.serve_file(BASE_DIR / "login.html")
             return
 
-        # 3. Static Assets (CSS, JS, Fonts) - Allow public load so login page is styled
-        if path.startswith("/css/") or path.startswith("/js/") or path == "/favicon.ico":
+        # 3. Static Assets (CSS, JS, Fonts, PWA) - Allow public load so login & PWA are styled
+        if (
+            path.startswith("/css/")
+            or path.startswith("/js/")
+            or path.startswith("/icons/")
+            or path in ("/favicon.ico", "/apple-touch-icon.png", "/manifest.json", "/manifest.webmanifest", "/sw.js")
+        ):
             self.serve_file(BASE_DIR / path.lstrip("/"))
             return
 
@@ -340,7 +349,16 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
 
         mime_type, _ = mimetypes.guess_type(str(file_path))
         if not mime_type:
-            mime_type = "application/octet-stream"
+            if file_path.suffix == ".json" or file_path.name == "manifest.json":
+                mime_type = "application/manifest+json"
+            elif file_path.suffix == ".webmanifest":
+                mime_type = "application/manifest+json"
+            elif file_path.suffix == ".js":
+                mime_type = "application/javascript"
+            elif file_path.suffix == ".svg":
+                mime_type = "image/svg+xml"
+            else:
+                mime_type = "application/octet-stream"
 
         try:
             with open(file_path, "rb") as f:
@@ -350,7 +368,11 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
             self.send_cors_headers()
             self.send_header("Content-Type", mime_type)
             self.send_header("Content-Length", str(len(content)))
-            self.send_header("Cache-Control", "no-cache")
+            if file_path.name == "sw.js":
+                self.send_header("Service-Worker-Allowed", "/")
+                self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+            else:
+                self.send_header("Cache-Control", "no-cache")
             self.end_headers()
             self.wfile.write(content)
         except Exception as e:

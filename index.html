@@ -2,9 +2,20 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>MedBento AI | 医学研究报告 Bento 可视化与自媒体智能切图系统</title>
   
+  <!-- WebApp & PWA Meta Configuration -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#00E5FF">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MedBento AI">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+
   <!-- Modern Typography & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,6 +57,9 @@
         </div>
       </div>
       <div class="header-actions">
+        <button id="btn-pwa-install" class="btn btn-secondary btn-sm" style="display:none; color:#00E5FF; border-color:rgba(0,229,255,0.4);" title="安装 MedBento 为桌面/手机 App 应用">
+          <i class="fa-solid fa-download"></i> 安装 App
+        </button>
         <button id="btn-show-prompt" class="btn btn-secondary btn-sm">
           <i class="fa-solid fa-wand-magic-sparkles" style="color: #00E5FF;"></i> 优化提示词
         </button>
