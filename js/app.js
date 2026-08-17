@@ -539,14 +539,17 @@ const App = {
     if (btnLogout) {
       btnLogout.addEventListener("click", async () => {
         try {
-          await fetch("/api/logout", { method: "POST" });
-          this.showToast("已成功退出登录，正在跳转...", "info");
-          setTimeout(() => {
-            window.location.href = "/login.html";
-          }, 400);
-        } catch (e) {
-          window.location.href = "/login.html";
-        }
+          const token = localStorage.getItem("medbento_token");
+          await fetch("/api/logout", {
+            method: "POST",
+            headers: token ? { "Authorization": `Bearer ${token}` } : {}
+          });
+        } catch (e) {}
+        try { localStorage.removeItem("medbento_token"); } catch (e) {}
+        this.showToast("已成功退出登录，正在跳转...", "info");
+        setTimeout(() => {
+          window.location.replace("/login.html");
+        }, 300);
       });
     }
   },

@@ -23,6 +23,9 @@ import ipaddress
 import urllib.request
 import urllib.parse
 import urllib.error
+import hmac
+import hashlib
+import re
 from http import cookies
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
@@ -97,8 +100,49 @@ def get_env_config():
         "auth_pass": os.environ.get("AUTH_PASSWORD", "").strip()
     }
 
-# In-memory valid sessions set
+# In-memory valid sessions set (survives memory cache and validates HMAC across restarts)
 VALID_SESSIONS = set()
+
+def generate_session_token(username: str) -> str:
+    """Generate a persistent, tamper-proof HMAC-SHA256 session token valid for 30 days"""
+    conf = get_env_config()
+    secret = (conf["auth_pass"] + "_medbento_secure_salt_2026").encode("utf-8")
+    expire_ts = int(time.time()) + 2592000  # 30 days
+    nonce = secrets.token_hex(8)
+    payload = f"{username}|{expire_ts}|{nonce}"
+    sig = hmac.new(secret, payload.encode("utf-8"), hashlib.sha256).hexdigest()
+    token = f"{payload}|{sig}"
+    VALID_SESSIONS.add(token)
+    return token
+
+def verify_session_token(token: str) -> bool:
+    """Verify session token against memory cache or cryptographic HMAC signature"""
+    if not token or not isinstance(token, str):
+        return False
+    if token in VALID_SESSIONS:
+        return True
+    try:
+        parts = token.split("|")
+        if len(parts) != 4:
+            return False
+        username, expire_ts_str, nonce, sig = parts
+        expire_ts = int(expire_ts_str)
+        if time.time() > expire_ts:
+            return False
+        conf = get_env_config()
+        secret = (conf["auth_pass"] + "_medbento_secure_salt_2026").encode("utf-8")
+        payload = f"{username}|{expire_ts}|{nonce}"
+        expected_sig = hmac.new(secret, payload.encode("utf-8"), hashlib.sha256).hexdigest()
+        if hmac.compare_digest(sig, expected_sig):
+            VALID_SESSIONS.add(token)
+            return True
+    except Exception:
+        pass
+    return False
+
+def revoke_session_token(token: str):
+    if token and token in VALID_SESSIONS:
+        VALID_SESSIONS.remove(token)
 
 # Register additional mimetypes
 mimetypes.add_type("application/javascript", ".js")
@@ -220,20 +264,38 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
     def get_session_token(self):
-        """Extract session token from cookie or Authorization header"""
+        """Extract session token from cookie, Authorization header, or query param with multi-layer fallback"""
+        # 1. Check Cookie header
         cookie_header = self.headers.get("Cookie")
         if cookie_header:
-            c = cookies.SimpleCookie()
             try:
+                c = cookies.SimpleCookie()
                 c.load(cookie_header)
                 if "medbento_session" in c:
-                    return c["medbento_session"].value
+                    val = c["medbento_session"].value.strip()
+                    if val:
+                        return val
             except Exception:
                 pass
-        
+
+            # Regex fallback for raw cookie string
+            match = re.search(r'(?:^|;\s*)medbento_session=([^;]+)', cookie_header)
+            if match:
+                return match.group(1).strip()
+
+        # 2. Check Authorization Header (Bearer token)
         auth_header = self.headers.get("Authorization")
         if auth_header and auth_header.startswith("Bearer "):
             return auth_header.split(" ", 1)[1].strip()
+
+        # 3. Check query parameter fallback (?auth_token=...)
+        try:
+            parsed = urllib.parse.urlparse(self.path)
+            query_params = urllib.parse.parse_qs(parsed.query)
+            if "auth_token" in query_params:
+                return query_params["auth_token"][0].strip()
+        except Exception:
+            pass
 
         return None
 
@@ -245,7 +307,7 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
             return True
         
         token = self.get_session_token()
-        return bool(token and token in VALID_SESSIONS)
+        return bool(token and verify_session_token(token))
 
     def do_OPTIONS(self):
         self.send_response(200)
@@ -256,22 +318,41 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
         parsed_url = urllib.parse.urlparse(self.path)
         path = parsed_url.path
 
-        # 1. Public Auth Check API
-        if path == "/api/auth-check":
+        # 1. Public API: System Status & Docker Healthcheck (Always 200 to prevent container flapping)
+        if path == "/api/status":
             conf = get_env_config()
             self.send_response(200)
             self.send_cors_headers()
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
             resp = {
-                "authenticated": self.is_authenticated(),
-                "auth_required": bool(conf["auth_pass"]),
-                "username": conf["auth_user"] if self.is_authenticated() else None
+                "status": "ok",
+                "healthy": True,
+                "gemini_configured": bool(conf["api_key"]),
+                "model": conf["model"],
+                "port": PORT,
+                "auth_enabled": bool(conf["auth_pass"])
             }
             self.wfile.write(json.dumps(resp, ensure_ascii=False).encode("utf-8"))
             return
 
-        # 2. Public Login Page Route
+        # 2. Public Auth Check API
+        if path == "/api/auth-check":
+            conf = get_env_config()
+            is_authed = self.is_authenticated()
+            self.send_response(200)
+            self.send_cors_headers()
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            resp = {
+                "authenticated": is_authed,
+                "auth_required": bool(conf["auth_pass"]),
+                "username": conf["auth_user"] if is_authed else None
+            }
+            self.wfile.write(json.dumps(resp, ensure_ascii=False).encode("utf-8"))
+            return
+
+        # 3. Public Login Page Route
         if path == "/login.html" or path == "/login":
             if self.is_authenticated():
                 self.send_response(302)
@@ -281,7 +362,7 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
             self.serve_file(BASE_DIR / "login.html")
             return
 
-        # 3. Static Assets (CSS, JS, Fonts, PWA) - Allow public load so login & PWA are styled
+        # 4. Static Assets (CSS, JS, Fonts, PWA) - Allow public load so login & PWA are styled
         if (
             path.startswith("/css/")
             or path.startswith("/js/")
@@ -291,7 +372,7 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
             self.serve_file(BASE_DIR / path.lstrip("/"))
             return
 
-        # 4. Auth Gate for Private Dashboard & APIs
+        # 5. Auth Gate for Private Dashboard & APIs
         if not self.is_authenticated():
             if path.startswith("/api/"):
                 self.send_response(401)
@@ -306,23 +387,6 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
                 self.send_header("Location", "/login.html")
                 self.end_headers()
                 return
-
-        # 5. Protected API: System Status Route
-        if path == "/api/status":
-            conf = get_env_config()
-            self.send_response(200)
-            self.send_cors_headers()
-            self.send_header("Content-Type", "application/json; charset=utf-8")
-            self.end_headers()
-            resp = {
-                "status": "ok",
-                "gemini_configured": bool(conf["api_key"]),
-                "model": conf["model"],
-                "port": PORT,
-                "auth_enabled": bool(conf["auth_pass"])
-            }
-            self.wfile.write(json.dumps(resp, ensure_ascii=False).encode("utf-8"))
-            return
 
         # 6. Protected Main App & Files
         if path == "/" or path == "":
@@ -431,8 +495,7 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
         expected_user = conf["auth_user"]
 
         if not expected_pass or (username == expected_user and password == expected_pass):
-            token = secrets.token_hex(24)
-            VALID_SESSIONS.add(token)
+            token = generate_session_token(username or expected_user)
 
             self.send_response(200)
             self.send_cors_headers()
@@ -450,8 +513,8 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
 
     def handle_api_logout(self):
         token = self.get_session_token()
-        if token and token in VALID_SESSIONS:
-            VALID_SESSIONS.remove(token)
+        if token:
+            revoke_session_token(token)
 
         self.send_response(200)
         self.send_cors_headers()

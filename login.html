@@ -298,8 +298,11 @@
 
         const data = await res.json();
         if (res.ok && data.success) {
+          if (data.token) {
+            try { localStorage.setItem("medbento_token", data.token); } catch(e) {}
+          }
           // Redirect to main app
-          window.location.href = "/";
+          window.location.replace("/");
         } else {
           errorText.innerText = data.error || "访问凭证无效，请检查 .env 中的密码设置";
           errorBanner.style.display = "flex";

@@ -140,9 +140,15 @@ const MedicalAnalyzer = {
   async analyzeReport(text, options = {}) {
     // 1. Primary: Call Backend Server API (/api/analyze) powered by .env GEMINI_API_KEY
     try {
+      const headers = { "Content-Type": "application/json" };
+      try {
+        const token = localStorage.getItem("medbento_token");
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+      } catch(e) {}
+
       const backendRes = await fetch("/api/analyze", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: headers,
         body: JSON.stringify({
           text: text,
           pdf_base64: options.pdfBase64 || null,
