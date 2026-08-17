@@ -68,9 +68,43 @@ const CardSlicer = {
    */
   getFormattedCitation(data) {
     if (!data) return "顶级同行评审期刊 · 临床研究";
-    const journal = data.journal || "顶级同行评审期刊";
-    const studyId = data.id || "";
-    return studyId ? `《${journal}》 · ${studyId}` : `《${journal}》`;
+    let journal = data.journal || "顶级同行评审期刊";
+    let studyId = data.id || data.studyMeta?.trialName || "";
+
+    // Clean up wrapping punctuation
+    journal = journal.replace(/^[《<"']+|[》>"']+$/g, "").trim();
+
+    // Standard medical journal abbreviations for excessively long titles
+    const KNOWN_ABBR = [
+      { key: "journal of thoracic oncology", abbr: "JTO (胸部肿瘤学)" },
+      { key: "journal of clinical oncology", abbr: "JCO (临床肿瘤学)" },
+      { key: "new england journal of medicine", abbr: "NEJM (新英格兰)" },
+      { key: "the lancet oncology", abbr: "Lancet Oncol" },
+      { key: "the lancet respiratory medicine", abbr: "Lancet Respir Med" },
+      { key: "the lancet", abbr: "The Lancet (柳叶刀)" },
+      { key: "nature medicine", abbr: "Nature Medicine" },
+      { key: "annals of oncology", abbr: "Annals of Oncology" },
+      { key: "clinical cancer research", abbr: "CCR (临床癌症研究)" },
+      { key: "cancer cell", abbr: "Cancer Cell" },
+      { key: "jama oncology", abbr: "JAMA Oncology" }
+    ];
+
+    const lowerJ = journal.toLowerCase();
+    for (const item of KNOWN_ABBR) {
+      if (lowerJ.includes(item.key)) {
+        journal = item.abbr;
+        break;
+      }
+    }
+
+    if (studyId) {
+      studyId = studyId.trim();
+      if (studyId.length > 20) {
+        studyId = studyId.substring(0, 18) + "...";
+      }
+      return `《${journal}》 · ${studyId}`;
+    }
+    return `《${journal}》`;
   },
 
   /**
@@ -220,8 +254,11 @@ const CardSlicer = {
   getFooter(sourceText = "顶级同行评审期刊 · 临床研究") {
     return `
       <div class="card-footer-bar">
-        <span>${this.svgIcon("book-medical", "color:var(--card-accent); margin-right:4px")}<span contenteditable="true">${sourceText}</span></span>
-        <span style="opacity:0.8; font-size:0.65rem;">仅供学术交流 · 诊疗遵医嘱</span>
+        <span class="card-footer-source" title="${sourceText}">
+          ${this.svgIcon("book-medical", "color:var(--card-accent); margin-right:4px; flex-shrink:0;")}
+          <span class="card-footer-source-text" contenteditable="true">${sourceText}</span>
+        </span>
+        <span class="card-footer-disclaimer">仅供学术交流 · 诊疗遵医嘱</span>
       </div>
     `;
   },
