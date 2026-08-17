@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>身份验证 - MedBento AI 私有医学科研网关</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #050B14;
+      background-image: 
+        radial-gradient(at 15% 15%, rgba(0, 229, 255, 0.12) 0px, transparent 55%),
+        radial-gradient(at 85% 85%, rgba(16, 185, 129, 0.1) 0px, transparent 55%),
+        radial-gradient(at 50% 50%, rgba(10, 15, 29, 0.9) 0px, #050B14 100%);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 440px;
+      padding: 20px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-card {
+      background: rgba(10, 15, 29, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      border-radius: 20px;
+      padding: 36px 30px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(0, 229, 255, 0.15);
+    }
+
+    .login-logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #00E5FF 0%, #0284C7 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #050B14;
+      margin: 0 auto 16px;
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.4);
+    }
+
+    .login-title {
+      font-size: 1.45rem;
+      font-weight: 900;
+      text-align: center;
+      color: #FFFFFF;
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+    }
+
+    .login-subtitle {
+      font-size: 0.82rem;
+      color: #94A3B8;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #CBD5E1;
+      margin-bottom: 8px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper i.prefix-icon {
+      position: absolute;
+      left: 14px;
+      color: #64748B;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .login-input {
+      width: 100%;
+      height: 48px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 0 42px 0 40px;
+      color: #F8FAFC;
+      font-size: 0.92rem;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    .login-input:focus {
+      border-color: #00E5FF;
+      box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.2);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .login-input:focus + .prefix-icon,
+    .input-wrapper:focus-within i.prefix-icon {
+      color: #00E5FF;
+    }
+
+    .toggle-pwd {
+      position: absolute;
+      right: 14px;
+      color: #64748B;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .toggle-pwd:hover {
+      color: #00E5FF;
+    }
+
+    .btn-login {
+      width: 100%;
+      height: 48px;
+      background: linear-gradient(135deg, #00E5FF 0%, #0284C7 100%);
+      color: #050B14;
+      font-size: 0.95rem;
+      font-weight: 800;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 20px rgba(0, 229, 255, 0.35);
+      margin-top: 26px;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 229, 255, 0.5);
+    }
+
+    .btn-login:active {
+      transform: translateY(0);
+    }
+
+    .error-banner {
+      display: none;
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      color: #FB7185;
+      font-size: 0.82rem;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      align-items: center;
+      gap: 8px;
+      animation: shake 0.3s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    .security-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 22px;
+      font-size: 0.74rem;
+      color: #64748B;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-logo">
+        <i class="fa-solid fa-dna"></i>
+      </div>
+      <h1 class="login-title">MedBento AI</h1>
+      <p class="login-subtitle">私有化医学科研报告可视化 & 自媒体系统</p>
+
+      <div id="error-banner" class="error-banner">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="error-text">账号或访问密码不正确</span>
+      </div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="username">管理员账号 (Username)</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user-shield prefix-icon"></i>
+            <input type="text" id="username" class="login-input" value="admin" placeholder="输入用户名..." autocomplete="username" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">私有访问密钥 / 密码 (Password)</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-lock prefix-icon"></i>
+            <input type="password" id="password" class="login-input" placeholder="输入 .env 中配置的访问密码..." autocomplete="current-password" required>
+            <i id="toggle-pwd" class="fa-regular fa-eye toggle-pwd" title="显示/隐藏密码"></i>
+          </div>
+        </div>
+
+        <button type="submit" id="btn-submit" class="btn-login">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> 安全验证并登入系统
+        </button>
+      </form>
+
+      <div class="security-badge">
+        <i class="fa-solid fa-shield-halved" style="color:#00E5FF;"></i>
+        <span>VPS 私有化部署保障 · 凭证由 .env 强加密验证</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Password toggle
+    const togglePwd = document.getElementById("toggle-pwd");
+    const pwdInput = document.getElementById("password");
+    togglePwd.addEventListener("click", () => {
+      if (pwdInput.type === "password") {
+        pwdInput.type = "text";
+        togglePwd.classList.replace("fa-eye", "fa-eye-slash");
+      } else {
+        pwdInput.type = "password";
+        togglePwd.classList.replace("fa-eye-slash", "fa-eye");
+      }
+    });
+
+    // Handle Login Submit
+    const form = document.getElementById("login-form");
+    const errorBanner = document.getElementById("error-banner");
+    const errorText = document.getElementById("error-text");
+    const btnSubmit = document.getElementById("btn-submit");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = pwdInput.value;
+
+      errorBanner.style.display = "none";
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 正在验证身份...`;
+
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          // Redirect to main app
+          window.location.href = "/";
+        } else {
+          errorText.innerText = data.error || "访问凭证无效，请检查 .env 中的密码设置";
+          errorBanner.style.display = "flex";
+          pwdInput.select();
+        }
+      } catch (err) {
+        errorText.innerText = `网络异常: ${err.message}`;
+        errorBanner.style.display = "flex";
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = `<i class="fa-solid fa-arrow-right-to-bracket"></i> 安全验证并登入系统`;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  medbento-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: medbento-ai-app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-38999}:38999"
+    env_file:
+      - .env
+    volumes:
+      - ./input:/app/input
+      - ./output:/app/output
+      - ./.env:/app/.env
+    environment:
+      - PORT=38999
+      - HOST=0.0.0.0

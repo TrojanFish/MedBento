@@ -1,0 +1,45 @@
+{
+  "version": "2.0.0",
+  "name": "Medical Research Bento & Social Media Slicer Prompt Templates",
+  "styles": [
+    {
+      "id": "social_viral",
+      "name": "🔥 自媒体爆款风 (小红书 / 抖音)",
+      "target_audience": "自媒体受众、患者及家属、公众健康科普",
+      "aspect_ratio_recommendation": "3:4 (小红书) / 9:16 (抖音)",
+      "color_scheme": {
+        "bg": "#0A0F1D",
+        "primary": "#00E5FF",
+        "highlight": "#10B981",
+        "alert": "#F43F5E"
+      },
+      "prompt": "请将以下医学研究报告生成一套适合小红书/抖音自媒体发布的 5 张高颜值 Bento Grid 视觉卡片。要求：1. 封面卡采用大字标题，突出 5 年生存率 94.3% 和《柳叶刀》顶刊背书；2. 第二张介绍 1106 例患者入组与肺段切除相比肺叶切除切除范围的区别；3. 第三张展示 Kaplan-Meier 生存曲线与 HR 0.663 (死亡风险下降 33.7%)；4. 第四张剖析局部复发率与肺功能保留多 3.5% 的获益平衡；5. 第五张给出通俗易懂的患者筛查与就诊建议及免责声明。文字生动吸睛，数据准确，附带热门自媒体话题标签。"
+    },
+    {
+      "id": "academic_clinical",
+      "name": "🔬 严谨临床学术风 (医生同行 / 学术研讨)",
+      "target_audience": "胸外科医师、肿瘤科专家、医学研究生",
+      "aspect_ratio_recommendation": "Bento Grid 仪表盘 / 16:9 大屏 / 3:4 学术海报",
+      "color_scheme": {
+        "bg": "#0B132B",
+        "primary": "#38BDF8",
+        "highlight": "#34D399",
+        "alert": "#FB7185"
+      },
+      "prompt": "请将以下临床试验报告转换为高精度的 Bento Grid 学术可视化网页。要求：1. 严谨标注 ITT 意向治疗人群、非劣效性检验界值 (HR 1.54) 与优效性检验 P=0.0082；2. 准确绘制 Kaplan-Meier 阶梯生存曲线 (含 0-7 年随访时点及 Number at risk)；3. 详细列明次要终点：5年 RFS (88.0% vs 87.9%)、局部复发率 (10.5% vs 5.4%, P=0.0018)、12个月 FEV1/FVC 损失百分比及非癌症相关死因分析；4. 提炼对 NCCN/CSCO 早期非小细胞肺癌手术指南的改写意义与切缘把控要点。"
+    },
+    {
+      "id": "patient_guide",
+      "name": "🩺 患者科普就诊指南风 (医患沟通 / 术前释疑)",
+      "target_audience": "肺结节/早期肺癌患者、家属、术前谈话辅助",
+      "aspect_ratio_recommendation": "3:4 翻页卡片 / 长图",
+      "color_scheme": {
+        "bg": "#0F172A",
+        "primary": "#06B6D4",
+        "highlight": "#22C55E",
+        "alert": "#F59E0B"
+      },
+      "prompt": "请根据这份医学报告，为肺结节及早期肺癌患者生成一份温暖且专业的术前抉择与康复科普指南。要求：1. 用通俗大白话解释“肺段切除”与“肺叶切除”的区别，打消“不切整叶肺切不干净”的恐慌；2. 用直观图表说明为什么多保住 3.5% 肺功能对于术后爬楼、呼吸顺畅至关重要；3. 重点告知术后随访复查的时间节点（前 3 年每 6 个月做一次 HRCT）；4. 语言温和笃定，充满科学温度，并附带规范免责声明。"
+    }
+  ]
+}

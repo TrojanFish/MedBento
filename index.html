@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedBento AI | 医学研究报告 Bento 可视化与自媒体智能切图系统</title>
+  
+  <!-- Modern Typography & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Custom Style -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Marked.js for Markdown & Table Rendering -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+  <!-- Chart.js 4.4 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <!-- Mammoth.js for Word (.docx) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <!-- PDF.js 3.11 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- html-to-image (Modern SVG foreignObject Native Renderer) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+  <!-- html2canvas for fallback compatibility -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- JSZip for batch download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <!-- FileSaver.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="brand-group">
+        <div class="brand-logo">
+          <i class="fa-solid fa-dna"></i>
+        </div>
+        <div>
+          <h1 class="brand-title">MedBento AI</h1>
+          <div class="brand-tag">医学研究报告 Bento 动态可视化 & 自媒体（小红书/抖音）智能切片系统</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-show-prompt" class="btn btn-secondary btn-sm">
+          <i class="fa-solid fa-wand-magic-sparkles" style="color: #00E5FF;"></i> 优化提示词
+        </button>
+        <a href="output/JCOG0802_Lancet_Study_Report.pdf" target="_blank" class="btn btn-secondary btn-sm">
+          <i class="fa-solid fa-file-pdf" style="color: #F43F5E;"></i> JCOG 报告 PDF
+        </a>
+        <button id="btn-logout" class="btn btn-secondary btn-sm" style="color:#CBD5E1;" title="退出登录">
+          <i class="fa-solid fa-arrow-right-from-bracket" style="color:#F43F5E;"></i> 退出
+        </button>
+      </div>
+    </header>
+
+    <!-- Control & Input Panel -->
+    <section class="control-section">
+      <div class="glass-card">
+        <div class="control-grid">
+          <!-- Left: Upload, URL & Presets -->
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-size:0.9rem; font-weight:700; color:#FFFFFF;">
+                <i class="fa-solid fa-file-arrow-up" style="color:#00E5FF; margin-right:6px;"></i>导入医学文献素材
+              </span>
+              <div style="display:flex; gap:6px;">
+                <button id="tab-input-file" class="ratio-btn active" style="padding:2px 8px; font-size:0.75rem;">📁 文件导入</button>
+                <button id="tab-input-url" class="ratio-btn" style="padding:2px 8px; font-size:0.75rem;">🌐 网页链接抓取</button>
+              </div>
+            </div>
+
+            <!-- Mode 1: File Dropzone (PDF, Word docx, Markdown, TXT, HTML, JSON) -->
+            <div id="dropzone-box">
+              <div id="dropzone" class="dropzone">
+                <input type="file" id="file-input" accept=".pdf,.docx,.doc,.txt,.md,.json,.html,.htm" style="display: none;">
+                <div class="dropzone-icon">
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <div class="dropzone-text">拖拽或点击上传文件 (PDF / Word / MD / TXT / HTML)</div>
+                <div class="dropzone-hint">支持 PDF、Word (.docx)、Markdown、文本、HTML 及 JSON</div>
+                <div id="file-info-badge" class="file-info-badge">
+                  <span><i class="fa-solid fa-file-circle-check"></i> <span id="file-name-text">已加载文件</span></span>
+                  <span style="font-size:0.75rem; opacity:0.8;">解析成功</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mode 2: Web URL Input -->
+            <div id="url-box" style="display: none; background: rgba(0,229,255,0.03); border:1px solid rgba(0,229,255,0.2); border-radius:12px; padding:16px;">
+              <div style="font-size:0.82rem; color:#CBD5E1; margin-bottom:6px; font-weight:600;">
+                <i class="fa-solid fa-globe" style="color:#00E5FF; margin-right:4px;"></i>输入公开医学文献 / 新闻网页链接 (URL):
+              </div>
+              <div style="display:flex; gap:8px;">
+                <input type="text" id="url-input" class="textarea-custom" style="height:42px; padding:8px 12px; margin-top:0;" placeholder="https://pubmed.ncbi.nlm.nih.gov/35468249/ 或其他公开文献网址...">
+                <button id="btn-fetch-url" class="btn btn-primary btn-sm" style="white-space:nowrap; padding:0 14px;">
+                  <i class="fa-solid fa-bolt"></i> 抓取正文
+                </button>
+              </div>
+              <div style="font-size:0.72rem; color:#64748B; margin-top:6px;">
+                自动提取 PubMed、The Lancet、Nature、ASCO、微信公众号、医学资讯等网页的核心正文与 Markdown
+              </div>
+            </div>
+
+            <div class="preset-pills">
+              <span style="font-size:0.75rem; color:#94A3B8; display:flex; align-items:center;">快捷预置演示:</span>
+              <button id="btn-preset-jcog" class="preset-pill" data-preset="jcog0802">
+                <i class="fa-solid fa-play" style="color:#00E5FF; margin-right:4px;"></i>点击开启 JCOG0802 柳叶刀研究演示 (N=1106)
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Text View & Actions with Dual-Mode Markdown & Table Support -->
+          <div style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <span style="font-size:0.9rem; font-weight:700; color:#FFFFFF; display:flex; align-items:center; gap:6px;">
+                  <i class="fa-solid fa-file-lines" style="color:#10B981;"></i> 报告文本提取与微调
+                  <span class="badge" style="background:rgba(0,229,255,0.12); color:#00E5FF; font-size:0.68rem; padding:2px 6px; border:1px solid rgba(0,229,255,0.25);">
+                    <i class="fa-brands fa-markdown"></i> Markdown & 表格
+                  </span>
+                </span>
+                
+                <div class="md-mode-switch">
+                  <button id="btn-mode-raw" class="md-tab-btn active" title="纯文本 / Markdown 源码编辑">
+                    <i class="fa-solid fa-code"></i> 源码编辑
+                  </button>
+                  <button id="btn-mode-preview" class="md-tab-btn" title="查看 Markdown 与表格排版渲染">
+                    <i class="fa-solid fa-table"></i> 表格/排版渲染
+                  </button>
+                  <button id="btn-insert-table" class="md-tab-btn" title="快速插入标准 Markdown 对照数据表模板">
+                    <i class="fa-solid fa-plus"></i> 插入表格
+                  </button>
+                </div>
+              </div>
+
+              <!-- Source Editor Mode -->
+              <textarea id="report-textarea" class="textarea-custom textarea-markdown" placeholder="请在左侧上传 PDF / 文档、输入网页链接，或点击下方【快捷预置】载入示例..."></textarea>
+              
+              <!-- Live Rendered Markdown & Table Preview Mode -->
+              <div id="report-md-preview" class="markdown-rendered-preview" style="display: none;"></div>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-top:12px;">
+              <select id="style-select" class="select-custom" style="flex:1;">
+                <option value="social_viral">🔥 自媒体爆款风 (小红书/抖音高吸引力)</option>
+                <option value="academic_clinical">🔬 严谨临床学术风 (医生同行/专家汇报)</option>
+                <option value="patient_guide">🩺 患者科普就医指南风 (医患沟通/释疑)</option>
+              </select>
+              <button id="btn-generate" class="btn btn-primary" style="flex:1; justify-content:center;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> 一键生成 Bento 仪表盘 & 切片
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Real-Time Generation Progress Bar -->
+    <div id="gen-progress-panel" class="glass-card gen-progress-card" style="display: none; margin-bottom: 22px;">
+      <div class="gen-progress-header">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div class="spinner-glow">
+            <i class="fa-solid fa-atom fa-spin" style="color:#00E5FF; font-size:1.3rem;"></i>
+          </div>
+          <div>
+            <div id="gen-progress-title" style="font-size:0.95rem; font-weight:800; color:#FFFFFF;">
+              正在调用医学大模型解析文献...
+            </div>
+            <div id="gen-progress-sub" style="font-size:0.75rem; color:#94A3B8; margin-top:2px;">
+              正在准备文档文本并提取关键临床终点与生存数据
+            </div>
+          </div>
+        </div>
+        <div id="gen-progress-pct" style="font-size:1.35rem; font-weight:900; color:#00E5FF; font-family:'Outfit', sans-serif;">
+          0%
+        </div>
+      </div>
+      <div class="gen-progress-track">
+        <div id="gen-progress-bar" class="gen-progress-bar" style="width: 0%;"></div>
+      </div>
+    </div>
+
+    <!-- View Mode Nav Switcher -->
+    <nav class="view-nav">
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-view="bento">
+          <i class="fa-solid fa-table-cells-large"></i> 📊 桌面 Bento Grid 仪表盘视图
+        </button>
+        <button class="nav-tab" data-view="social">
+          <i class="fa-solid fa-mobile-screen-button"></i> 📱 自媒体卡片切片与导出视图 (小红书 / 抖音)
+        </button>
+      </div>
+      <div id="study-status-indicator" style="font-size:0.8rem; color:#94A3B8; display:flex; align-items:center; gap:8px;">
+        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#64748B;"></span>
+        <span id="study-status-text">等待文献载入中</span>
+      </div>
+    </nav>
+
+    <!-- =========================================================================
+         VIEW 1: DESKTOP BENTO GRID DASHBOARD
+         ========================================================================= -->
+    <main id="bento-view-section" class="bento-dashboard">
+      <!-- Empty / Standby State -->
+      <div id="bento-empty-state" class="glass-card empty-standby-card">
+        <div class="standby-icon">
+          <i class="fa-solid fa-laptop-medical"></i>
+        </div>
+        <h2 style="font-size:1.35rem; font-weight:800; color:#FFFFFF; margin-bottom:8px;">
+          MedBento AI 智能医学工作台处于待命状态
+        </h2>
+        <p style="font-size:0.86rem; color:#94A3B8; max-width:580px; margin:0 auto 20px; line-height:1.6;">
+          请在上方控制面板上传任意 <b>PDF / Word 临床文献</b>、粘贴 <b>PubMed/Lancet 网页链接</b>，或直接点击下方按钮开启 <b>JCOG0802 经典肺癌里程碑研究演示</b>。
+        </p>
+        <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btn-preset-jcog').click()">
+            <i class="fa-solid fa-play"></i> 开启 JCOG0802 演示数据
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('file-input').click()">
+            <i class="fa-solid fa-cloud-arrow-up"></i> 上传本地医学文献
+          </button>
+        </div>
+      </div>
+
+      <div id="bento-main-content" style="display: none;">
+        <!-- Row 1: Hero Header Card -->
+        <div class="glass-card hero-header-card">
+          <div class="meta-badges">
+            <span id="hero-journal-badge" class="badge badge-lancet">《The Lancet》2022 顶刊</span>
+            <span class="badge badge-jcog">JCOG0802 / WJOG4607L</span>
+            <span class="badge badge-phase3">Phase 3 RCT 多中心试验</span>
+            <span id="hero-doi" class="badge" style="background: rgba(255,255,255,0.06); color:#94A3B8;">DOI: 10.1016/S0140-6736(21)02333-3</span>
+          </div>
+          <h2 id="hero-title" class="hero-study-title">JCOG0802 / WJOG4607L 早期肺癌生存率里程碑研究</h2>
+          <p id="hero-full-en" class="hero-study-sub">
+            Segmentectomy versus lobectomy in small-sized peripheral non-small-cell lung cancer: a multicentre, open-label, phase 3, randomised, controlled, non-inferiority trial
+          </p>
+          <div style="margin-top:12px; font-size:0.82rem; color:#64748B; display:flex; gap:20px; flex-wrap:wrap;">
+            <span><i class="fa-solid fa-user-doctor" style="color:#00E5FF; margin-right:4px;"></i>主要作者：<span id="hero-authors" style="color:#CBD5E1;">Hisashi Saji, Morihito Okada 等</span></span>
+            <span><i class="fa-solid fa-hospital" style="color:#00E5FF; margin-right:4px;"></i>研究机构：<span style="color:#CBD5E1;">全日本 70 家顶尖医疗中心</span></span>
+            <span><i class="fa-solid fa-clock-rotate-left" style="color:#00E5FF; margin-right:4px;"></i>中位随访：<span style="color:#CBD5E1;">7.3 年 (88.2 个月)</span></span>
+          </div>
+        </div>
+
+      <!-- Row 2: Bento Big Numbers (KPI Metrics) -->
+      <div class="bento-grid">
+        <div class="glass-card col-3 kpi-card">
+          <div class="kpi-label">
+            <span>5年总生存率 (5-Yr OS)</span>
+            <i class="fa-solid fa-heart-pulse" style="color:#00E5FF;"></i>
+          </div>
+          <div class="kpi-number-group">
+            <div id="kpi-os-val" class="kpi-big-number kpi-number-cyan">94.3% <span style="font-size:1.3rem; color:#94A3B8; font-weight:400;">vs 91.1%</span></div>
+          </div>
+          <div class="kpi-subtext" style="color:#10B981; font-weight:600;">
+            <i class="fa-solid fa-arrow-trend-up"></i> 肺段组优效性证实 (P=0.0082)
+          </div>
+        </div>
+
+        <div class="glass-card col-3 kpi-card">
+          <div class="kpi-label">
+            <span>死亡风险比 (Hazard Ratio)</span>
+            <i class="fa-solid fa-shield-halved" style="color:#10B981;"></i>
+          </div>
+          <div class="kpi-number-group">
+            <div id="kpi-hr-val" class="kpi-big-number kpi-number-emerald">HR 0.663</div>
+          </div>
+          <div id="kpi-hr-sub" class="kpi-subtext">95% CI: 0.474-0.927 (死亡风险降 33.7%)</div>
+        </div>
+
+        <div class="glass-card col-3 kpi-card">
+          <div class="kpi-label">
+            <span>12个月肺功能损失(FEV1)</span>
+            <i class="fa-solid fa-lungs" style="color:#00E5FF;"></i>
+          </div>
+          <div class="kpi-number-group">
+            <div id="kpi-fev1-val" class="kpi-big-number kpi-number-white">-8.5% vs -12.0%</div>
+          </div>
+          <div class="kpi-subtext" style="color:#00E5FF;">
+            <i class="fa-solid fa-plus"></i> 肺段组多保留 3.5% 肺功能 (P<0.0001)
+          </div>
+        </div>
+
+        <div class="glass-card col-3 kpi-card">
+          <div class="kpi-label">
+            <span>多中心样本总量 (ITT)</span>
+            <i class="fa-solid fa-users" style="color:#F59E0B;"></i>
+          </div>
+          <div class="kpi-number-group">
+            <div id="kpi-n-val" class="kpi-big-number kpi-number-white">N = 1,106</div>
+          </div>
+          <div class="kpi-subtext">≤2cm 外周早期肺癌 (CTR > 0.5)</div>
+        </div>
+      </div>
+
+      <!-- Row 3: Kaplan-Meier Survival Curve & Comparison Chart -->
+      <div class="bento-grid">
+        <!-- KM Curve (Span 8) -->
+        <div class="glass-card col-8">
+          <div class="chart-header">
+            <div class="card-section-title">
+              <i class="fa-solid fa-chart-line"></i> Kaplan-Meier 生存分析阶梯曲线 (0-7年随访)
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button id="btn-km-os" class="ratio-btn active" style="padding:4px 10px; font-size:0.75rem;">总生存期 (OS)</button>
+              <button id="btn-km-rfs" class="ratio-btn" style="padding:4px 10px; font-size:0.75rem;">无复发生存期 (RFS)</button>
+            </div>
+          </div>
+          <div class="chart-container-box">
+            <canvas id="bento-km-chart"></canvas>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:0.75rem; color:#64748B;">
+            <span><i class="fa-solid fa-circle-check" style="color:#10B981;"></i> 阶梯状 Stepped 真实随访轨迹</span>
+            <span>非劣效性 P < 0.0001 | 优效性 P = 0.0082</span>
+          </div>
+        </div>
+
+        <!-- Radar / Bar Multi-metric comparison (Span 4) -->
+        <div class="glass-card col-4">
+          <div class="chart-header">
+            <div class="card-section-title">
+              <i class="fa-solid fa-scale-balanced"></i> 多维度临床终点对比
+            </div>
+          </div>
+          <div class="chart-container-box">
+            <canvas id="bento-radar-chart"></canvas>
+          </div>
+          <div style="font-size:0.75rem; color:#94A3B8; margin-top:10px; line-height:1.4;">
+            <i class="fa-solid fa-info-circle" style="color:#00E5FF;"></i> 肺段组在总生存率和肺功能上占优，非肿瘤死因（心脑血管/呼吸感染）大幅降低。
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 4: Detailed Evidence Table -->
+      <div class="glass-card">
+        <div class="card-section-title" style="margin-bottom:12px;">
+          <i class="fa-solid fa-table-list"></i> 核心试验终点全景对照数据 (Clinical Endpoints Comparison)
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="medical-table">
+            <thead>
+              <tr>
+                <th>评价指标 (Endpoint)</th>
+                <th>解剖性肺段切除组 (n=552)</th>
+                <th>标准肺叶切除组 (n=554)</th>
+                <th>统计学效应 (HR / P-value)</th>
+                <th>临床定性与意义</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><b>5年总生存率 (5-Yr OS)</b></td>
+                <td><span class="tag-win">94.3% (92.1 - 96.0%)</span></td>
+                <td>91.1% (88.4 - 93.2%)</td>
+                <td>HR 0.663 (0.474-0.927), P=0.0082</td>
+                <td><span class="tag-win">肺段组优效证实 (死亡风险降33.7%)</span></td>
+              </tr>
+              <tr>
+                <td><b>5年无复发生存率 (5-Yr RFS)</b></td>
+                <td>88.0% (85.0 - 90.4%)</td>
+                <td>87.9% (84.8 - 90.3%)</td>
+                <td>HR 0.998, P=0.9889</td>
+                <td>肿瘤根治彻底性两组高度一致</td>
+              </tr>
+              <tr>
+                <td><b>局部切缘复发率 (Local Relapse)</b></td>
+                <td><span class="tag-alert">10.5% (58 例)</span></td>
+                <td>5.4% (30 例)</td>
+                <td>P = 0.0018 (差异显著)</td>
+                <td>肺段组局部复发偏高，需严控切缘 ≥2cm</td>
+              </tr>
+              <tr>
+                <td><b>12个月 FEV1 肺功能损失</b></td>
+                <td><span class="tag-win">-8.5% (中位数)</span></td>
+                <td>-12.0% (中位数)</td>
+                <td>差值 3.5% (P < 0.0001)</td>
+                <td><span class="tag-win">肺段组显著保留更多通气能力</span></td>
+              </tr>
+              <tr>
+                <td><b>非癌症死因人数 (7.3年随访)</b></td>
+                <td><span class="tag-win">27 例 (脑/心/肺疾病)</span></td>
+                <td>52 例 (脑/心/肺疾病)</td>
+                <td>肺段组大幅减少</td>
+                <td>保肺减少远期呼吸与心脑合并症死亡</td>
+              </tr>
+              <tr>
+                <td><b>30天 / 90天围术期死亡率</b></td>
+                <td>0.0% / 0.4% (2例)</td>
+                <td>0.0% / 0.2% (1例)</td>
+                <td>无显著统计学差异</td>
+                <td>两种术式均具备顶级安全性</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Row 5: Dual Audience Takeaways (Doctor vs Patient) -->
+      <div class="dual-takeaways">
+        <div class="takeaway-box doctor-box">
+          <div class="takeaway-title" style="color:#00E5FF;">
+            <i class="fa-solid fa-stethoscope"></i> 临床专家与同行研讨启示 (For Oncologists & Surgeons)
+          </div>
+          <ul id="doctor-takeaways-list" class="takeaway-list">
+            <!-- Filled dynamically -->
+          </ul>
+        </div>
+
+        <div class="takeaway-box patient-box">
+          <div class="takeaway-title" style="color:#10B981;">
+            <i class="fa-solid fa-hand-holding-heart"></i> 患者及家属通俗科普指南 (For Patients & Families)
+          </div>
+          <ul id="patient-takeaways-list" class="takeaway-list">
+            <!-- Filled dynamically -->
+          </ul>
+        </div>
+      </div>
+      </div> <!-- End #bento-main-content -->
+    </main>
+
+    <!-- =========================================================================
+         VIEW 2: SOCIAL MEDIA CARD SLICER & EXPORTER (小红书 / 抖音)
+         ========================================================================= -->
+    <section id="social-view-section" style="display: none;">
+      <!-- Slicer Toolbar -->
+      <div class="slicer-toolbar">
+        <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+          <!-- Ratio Selector -->
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:0.82rem; font-weight:700; color:#FFFFFF;">
+              <i class="fa-solid fa-crop-simple" style="color:#00E5FF; margin-right:4px;"></i>尺寸:
+            </span>
+            <div class="ratio-selector">
+              <button class="ratio-btn active" data-ratio="ratio-3-4">
+                <i class="fa-solid fa-image"></i> 小红书 3:4
+              </button>
+              <button class="ratio-btn" data-ratio="ratio-9-16">
+                <i class="fa-solid fa-mobile-screen"></i> 抖音 9:16
+              </button>
+              <button class="ratio-btn" data-ratio="ratio-1-1">
+                <i class="fa-solid fa-square"></i> 方图 1:1
+              </button>
+            </div>
+          </div>
+
+          <!-- Theme Selector -->
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:0.82rem; font-weight:700; color:#FFFFFF;">
+              <i class="fa-solid fa-palette" style="color:#10B981; margin-right:4px;"></i>主题:
+            </span>
+            <div id="card-theme-group" style="display:flex; gap:6px;">
+              <button class="ratio-btn active" data-theme="theme-dark">🌙 暗黑科技</button>
+              <button class="ratio-btn" data-theme="theme-light">📜 便签纸暖白</button>
+              <button class="ratio-btn" data-theme="theme-emerald">🧪 蓝绿生命</button>
+            </div>
+          </div>
+
+          <!-- Deck Count Adaptive Selector (5~8 Cards) -->
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:0.82rem; font-weight:700; color:#FFFFFF;">
+              <i class="fa-solid fa-layer-group" style="color:#00E5FF; margin-right:4px;"></i>篇幅:
+            </span>
+            <div id="deck-count-group" class="ratio-selector">
+              <button class="ratio-btn active" data-deck-mode="auto" title="根据文献信息丰富度自动匹配 5~8 张">⚡ 智能自适应 (5~8张)</button>
+              <button class="ratio-btn" data-deck-mode="5" title="5张黄金叙事闭环">5张 · 爆款精炼</button>
+              <button class="ratio-btn" data-deck-mode="7" title="含安全性与亚组分析">7张 · 深度临床</button>
+              <button class="ratio-btn" data-deck-mode="8" title="全量包含指南共识与全流程路径">8张 · 全景全案</button>
+            </div>
+          </div>
+
+          <!-- Author Watermark -->
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:0.8rem; color:#94A3B8;">署名:</span>
+            <input type="text" id="watermark-input" class="watermark-input" value="Dr. 肿瘤前沿速递" placeholder="自定义卡片署名...">
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button id="btn-open-copywriter" class="btn btn-secondary btn-sm">
+            <i class="fa-solid fa-pen-nib" style="color:#00E5FF;"></i> 文案工作台
+          </button>
+          <button id="btn-copy-social" class="btn btn-secondary btn-sm">
+            <i class="fa-solid fa-copy" style="color:#10B981;"></i> 快速复制发布文案
+          </button>
+          <button id="btn-export-long" class="btn btn-secondary btn-sm">
+            <i class="fa-solid fa-scroll" style="color:#F59E0B;"></i> 下载完整长图 (PNG)
+          </button>
+          <button id="btn-export-zip" class="btn btn-primary btn-sm">
+            <i class="fa-solid fa-file-zipper"></i> 一键打包全部切片 (ZIP)
+          </button>
+        </div>
+      </div>
+
+      <!-- Social Empty State -->
+      <div id="social-empty-state" class="glass-card empty-standby-card" style="margin-top:16px;">
+        <div class="standby-icon">
+          <i class="fa-solid fa-images"></i>
+        </div>
+        <h3 style="font-size:1.2rem; font-weight:800; color:#FFFFFF; margin-bottom:6px;">暂无可供切片的自媒体卡片</h3>
+        <p style="font-size:0.84rem; color:#94A3B8; max-width:500px; margin:0 auto 16px;">
+          请先在上方上传文献或点击【开启 JCOG0802 演示数据】生成 5 张小红书/抖音高清视觉卡片。
+        </p>
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('btn-preset-jcog').click()">
+          <i class="fa-solid fa-play"></i> 开启 JCOG0802 演示并生成切片
+        </button>
+      </div>
+
+      <!-- 5 Discrete Social Media Cards Container -->
+      <div id="social-cards-container" class="social-cards-wrapper" style="display:none;">
+        <!-- Rendered dynamically by card_slicer.js -->
+      </div>
+    </section>
+
+    <!-- Disclaimer Banner -->
+    <footer class="disclaimer-banner">
+      <i class="fa-solid fa-shield-halved" style="color:#00E5FF; margin-right:6px;"></i>
+      <b>医学免责与学术声明：</b>本系统内容基于《The Lancet》（DOI: 10.1016/S0140-6736(21)02333-3）与 JCOG 官方公开临床数据编译与可视化呈现，仅供学术科研交流与健康科普参考，不构成任何临床诊疗方案推荐。具体手术适应症与治疗决策请严格遵从专业三甲医院胸外科及肿瘤科执业医师意见。
+    </footer>
+  </div>
+
+  <!-- Copywriting Workbench Modal -->
+  <div id="modal-copywriter" class="modal-overlay">
+    <div class="modal-card" style="max-width: 700px;">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <i class="fa-solid fa-pen-nib" style="color:#00E5FF; margin-right:8px;"></i>
+          自媒体发布文案工作台 (小红书 / 抖音)
+        </h3>
+        <button id="btn-close-copywriter-modal" class="modal-close">&times;</button>
+      </div>
+
+      <p style="font-size:0.84rem; color:#94A3B8; margin-bottom:14px;">
+        已根据当前医学研究自动拟定小红书爆款 Hook 标题、Emoji 结构化正文与精准医疗话题标签，您可直接在此微调后一键复制。
+      </p>
+
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <label style="font-size:0.82rem; color:#CBD5E1; font-weight:700;">爆款标题 (Hook Title):</label>
+            <span id="title-char-count" style="font-size:0.72rem; color:#64748B;">32 字</span>
+          </div>
+          <input type="text" id="cw-title-input" class="textarea-custom" style="height:42px; margin-top:0; font-weight:700; color:#00E5FF;">
+        </div>
+
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <label style="font-size:0.82rem; color:#CBD5E1; font-weight:700;">小红书正文 (带 Emoji 排版 & 数据拆解):</label>
+            <span id="body-char-count" style="font-size:0.72rem; color:#64748B;">字数统计</span>
+          </div>
+          <textarea id="cw-body-textarea" class="textarea-custom" style="height:170px; margin-top:0; line-height:1.6;"></textarea>
+        </div>
+
+        <div>
+          <label style="font-size:0.82rem; color:#CBD5E1; font-weight:700; display:block; margin-bottom:4px;">热门话题标签 (Hashtags):</label>
+          <input type="text" id="cw-tags-input" class="textarea-custom" style="height:42px; margin-top:0; color:#10B981;">
+        </div>
+      </div>
+
+      <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:0.75rem; color:#64748B;"><i class="fa-solid fa-circle-check" style="color:#10B981;"></i> 符合小红书 1000 字与热门排版规范</span>
+        <button id="btn-cw-copy-all" class="btn btn-primary btn-sm">
+          <i class="fa-solid fa-copy"></i> 一键复制整篇文案
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prompt Templates Modal -->
+  <div id="modal-prompt" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <i class="fa-solid fa-wand-magic-sparkles" style="color:#00E5FF; margin-right:8px;"></i>
+          医学研究 Bento Grid 提示词体系 (优化版)
+        </h3>
+        <button id="btn-close-modal" class="modal-close">&times;</button>
+      </div>
+      
+      <p style="font-size:0.84rem; color:#94A3B8; margin-bottom:16px;">
+        从原版财报提示词（见 <code>prompt.jpg</code>）全面重构，注入 Kaplan-Meier 生存分析、HR 风险比、肺功能多维对比与自媒体（小红书/抖音）切片标准。
+      </p>
+
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="takeaway-box" style="background:#070C18;">
+          <div style="font-weight:700; color:#00E5FF; font-size:0.9rem; margin-bottom:6px;">🔥 1. 自媒体爆款提示词 (小红书/抖音)</div>
+          <p style="font-size:0.8rem; color:#CBD5E1; line-height:1.5;">
+            请将医学研究报告转换为 5 张小红书 3:4 视觉卡片。大字突出 5年生存率 94.3% 与《柳叶刀》顶刊，展示 1106 例入组、KM 生存曲线、局部复发与肺功能保留多 3.5% 的获益平衡，输出通俗易懂的就医指南与免责声明。
+          </p>
+        </div>
+
+        <div class="takeaway-box" style="background:#070C18;">
+          <div style="font-weight:700; color:#10B981; font-size:0.9rem; margin-bottom:6px;">🔬 2. 严谨临床学术提示词 (同行研讨/专家汇报)</div>
+          <p style="font-size:0.8rem; color:#CBD5E1; line-height:1.5;">
+            构建 Bento Grid 学术可视化。标注 ITT 意向人群、非劣效界值 (HR 1.54) 与优效性 P=0.0082，绘制阶梯状 KM 曲线，详细列明 5年 RFS、局部复发率 (10.5% vs 5.4%)、FEV1 损失率及指南改写要点。
+          </p>
+        </div>
+
+        <div class="takeaway-box" style="background:#070C18;">
+          <div style="font-weight:700; color:#F59E0B; font-size:0.9rem; margin-bottom:6px;">🩺 3. 患者科普就诊指南提示词 (医患沟通)</div>
+          <p style="font-size:0.8rem; color:#CBD5E1; line-height:1.5;">
+            通俗大白话解读“肺段切除 vs 肺叶切除”，打消“不切整叶肺切不干净”的恐慌，直观展示多保住 3.5% 肺活量对术后生活质量的意义，并告知前 3 年每半年复查胸部 CT 的随访要点。
+          </p>
+        </div>
+      </div>
+
+      <div style="margin-top:20px; text-align:right;">
+        <a href="output/optimized_medical_prompt.md" target="_blank" class="btn btn-primary btn-sm">
+          <i class="fa-solid fa-file-lines"></i> 打开完整 Markdown 提示词文件
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- App Scripts -->
+  <script src="js/pdf_extractor.js"></script>
+  <script src="js/medical_analyzer.js"></script>
+  <script src="js/card_slicer.js"></script>
+  <script src="js/exporter.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
