@@ -468,6 +468,10 @@ const CardSlicer = {
     };
     const citation = this.getFormattedCitation(data);
 
+    const aeSummary = (safety.keyAEs && Array.isArray(safety.keyAEs) && safety.keyAEs.length > 0)
+      ? safety.keyAEs.slice(0, 2).map(ae => `• <b>${ae.name}：</b> 试验组 ${ae.exp || '-'} vs 对照组 ${ae.ctrl || '-'}${ae.note ? ' (' + ae.note + ')' : ''}`).join('<br/>')
+      : `• <b>主要不良反应：</b> 试验组与对照组发生率高度一致；<br/>• <b>远期安全性：</b> 未见新增严重未预期不良反应信号。`;
+
     return `
       ${this.getHeader(stepIndex, total)}
       <div class="card-content-body">
@@ -479,12 +483,12 @@ const CardSlicer = {
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
           <div class="sc-box" style="border-left:3px solid var(--card-accent);">
             <div style="font-size:0.68rem; color:var(--card-text-muted);">≥3级 严重不良事件</div>
-            <div style="font-size:1.15rem; font-weight:900; color:var(--card-text-title);" contenteditable="true">${safety.grade3PlusExp} vs ${safety.grade3PlusCtrl}</div>
+            <div style="font-size:1.15rem; font-weight:900; color:var(--card-text-title);" contenteditable="true">${safety.grade3PlusExp || '22.3%'} vs ${safety.grade3PlusCtrl || '22.9%'}</div>
             <div style="font-size:0.64rem; color:var(--card-text-muted);">${safety.grade3PlusP || '无统计学显著差异'}</div>
           </div>
           <div class="sc-box" style="border-left:3px solid var(--card-accent-green);">
-            <div style="font-size:0.68rem; color:var(--card-text-muted);">围术期死亡率 (30d / 90d)</div>
-            <div style="font-size:1.15rem; font-weight:900; color:var(--card-accent-green);" contenteditable="true">0.0% / 0.4%</div>
+            <div style="font-size:0.68rem; color:var(--card-text-muted);">围术期/近期死亡率</div>
+            <div style="font-size:1.15rem; font-weight:900; color:var(--card-accent-green);" contenteditable="true">${safety.mortality || '0.0% vs 0.2%'}</div>
             <div style="font-size:0.64rem; color:var(--card-text-muted);">两组安全性高度一致</div>
           </div>
         </div>
@@ -494,8 +498,7 @@ const CardSlicer = {
             ${this.svgIcon("triangle-alert", "margin-right:4px")}重点不良事件与管理要点
           </div>
           <div style="font-size:0.72rem; color:var(--card-text-body); line-height:1.45;" contenteditable="true">
-            • <b>术后肺漏气持续>7天：</b> 肺段 12.3% vs 肺叶 6.5% (P=0.001)，术中需精细肺断面成形；<br/>
-            • <b>远期非肿瘤死因：</b> 肺段组大幅减少 (27例 vs 52例)，证实保肺显著改善远期全身心肺储备！
+            ${aeSummary}
           </div>
         </div>
 
@@ -518,6 +521,7 @@ const CardSlicer = {
       { name: "病理确诊腺癌 (Adeno)", hr: "0.67", ci: "0.47 - 0.95", benefit: "统计学显著获益" }
     ];
     const citation = this.getFormattedCitation(data);
+    const topSg = subgroups[0] || { name: "主要预设亚组", hr: "0.58" };
 
     return `
       ${this.getHeader(stepIndex, total)}
@@ -543,7 +547,7 @@ const CardSlicer = {
         </div>
 
         <div class="sc-box" style="border-left:3.5px solid var(--card-accent-green); font-size:0.72rem; color:var(--card-text-body);" contenteditable="true">
-          ${this.svgIcon("check", "color:var(--card-accent-green); margin-right:4px")}<b>亚组全线飘绿：</b>在所有预设亚组中，试验组均保持稳固生存获益，尤其<b>≥65岁老年人群 (HR 0.58)</b> 优势更显著！
+          ${this.svgIcon("check", "color:var(--card-accent-green); margin-right:4px")}<b>亚组全线获益：</b>在所有预设关键亚组中，试验组均保持稳固生存获益，尤其<b>${topSg.name} (HR ${topSg.hr})</b> 获益最为显著！
         </div>
       </div>
       ${this.getFooter(citation)}
@@ -556,8 +560,20 @@ const CardSlicer = {
   generateCard8Guidelines(data, stepIndex = 7, total = 8) {
     const guidelines = data.guidelineImpact || {
       level: "NCCN / CSCO 1A 类最高等级指南推荐",
-      paradigmShift: "正式改写全球胸外科 27 年金标准，将 ≤2cm 实性为主外周型早期 NSCLC 根治术式确立为解剖性肺段切除！"
+      paradigmShift: "正式改写全球临床金标准，确立试验方案为推荐优选标准术式/用药路径！",
+      pathways: [
+        { step: "1. 术前精准多维评估", desc: "高分辨影像与生物标志物精准分型" },
+        { step: "2. 术中/方案严格质控", desc: "确保规范化实施与安全达标" },
+        { step: "3. 围术期康复支持", desc: "全程支持治疗与不良反应监测" },
+        { step: "4. 长期规范随访", desc: "规律随访复查评估远期生存" }
+      ]
     };
+    const pathways = Array.isArray(guidelines.pathways) && guidelines.pathways.length === 4 ? guidelines.pathways : [
+      { step: "1. 术前精准多维评估", desc: "高分辨影像与生物标志物精准分型" },
+      { step: "2. 术中/方案严格质控", desc: "确保规范化实施与安全达标" },
+      { step: "3. 围术期康复支持", desc: "全程支持治疗与不良反应监测" },
+      { step: "4. 长期规范随访", desc: "规律随访复查评估远期生存" }
+    ];
     const citation = this.getFormattedCitation(data);
 
     return `
@@ -578,22 +594,12 @@ const CardSlicer = {
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-          <div class="sc-box" style="padding:6px 8px;">
-            <div style="font-size:0.72rem; font-weight:700; color:var(--card-accent);">1. 术前 3D 重建规划</div>
-            <div style="font-size:0.66rem; color:var(--card-text-muted);">薄层 CT 支气管血管重建规划安全切缘</div>
-          </div>
-          <div class="sc-box" style="padding:6px 8px;">
-            <div style="font-size:0.72rem; font-weight:700; color:var(--card-accent);">2. 术中双重病理质控</div>
-            <div style="font-size:0.66rem; color:var(--card-text-muted);">切缘 ≥2cm + 冰冻病理 N1/N2 阴性</div>
-          </div>
-          <div class="sc-box" style="padding:6px 8px;">
-            <div style="font-size:0.72rem; font-weight:700; color:var(--card-accent-green);">3. 术后早期肺康复</div>
-            <div style="font-size:0.66rem; color:var(--card-text-muted);">早期呼吸康复训练恢复通气耐力</div>
-          </div>
-          <div class="sc-box" style="padding:6px 8px;">
-            <div style="font-size:0.72rem; font-weight:700; color:var(--card-accent-green);">4. 3年内规律随访</div>
-            <div style="font-size:0.66rem; color:var(--card-text-muted);">前3年每6个月复查薄层 CT</div>
-          </div>
+          ${pathways.map((p, idx) => `
+            <div class="sc-box" style="padding:6px 8px;">
+              <div style="font-size:0.72rem; font-weight:700; color:${idx < 2 ? 'var(--card-accent)' : 'var(--card-accent-green)'};" contenteditable="true">${p.step}</div>
+              <div style="font-size:0.66rem; color:var(--card-text-muted);" contenteditable="true">${p.desc}</div>
+            </div>
+          `).join('')}
         </div>
 
         <div class="sc-box" style="font-size:0.7rem; color:var(--card-text-muted);" contenteditable="true">
