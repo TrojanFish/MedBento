@@ -646,45 +646,127 @@ const App = {
   renderBentoDashboard(data) {
     if (!data) return;
 
-    // 1. Hero Header
+    // 1. Hero Header Badges & Meta
+    const badgesContainer = document.getElementById("hero-meta-badges");
+    if (badgesContainer) {
+      const journalText = data.journal ? `《${data.journal}》${data.pubDate ? ' ' + data.pubDate : ''}` : "同行评审期刊";
+      const trialText = data.id || data.studyMeta?.trialName || "前瞻性临床研究";
+      const phaseText = data.phase || data.studyMeta?.phase || "临床试验";
+      const doiText = data.doi ? `DOI: ${data.doi}` : "同行评审认证";
+
+      badgesContainer.innerHTML = `
+        <span class="badge badge-lancet">${journalText}</span>
+        <span class="badge badge-jcog">${trialText}</span>
+        <span class="badge badge-phase3">${phaseText}</span>
+        <span class="badge" style="background: rgba(255,255,255,0.06); color:#94A3B8;">${doiText}</span>
+      `;
+    }
+
     const heroTitle = document.getElementById("hero-title");
     if (heroTitle) heroTitle.innerText = data.title || "医学研究临床生存率报告";
 
     const heroEn = document.getElementById("hero-full-en");
-    if (heroEn) heroEn.innerText = data.fullTitleEn || "";
-
-    const heroDoi = document.getElementById("hero-doi");
-    if (heroDoi) heroDoi.innerText = data.doi ? `DOI: ${data.doi}` : "";
-
-    const heroJournal = document.getElementById("hero-journal");
-    if (heroJournal) heroJournal.innerText = data.journal || "医学顶级同行评审期刊";
+    if (heroEn) heroEn.innerText = data.fullTitleEn || data.subtitle || "";
 
     const heroAuthors = document.getElementById("hero-authors");
-    if (heroAuthors) heroAuthors.innerText = data.leadAuthors || "临床试验研究协作组";
+    if (heroAuthors) heroAuthors.innerText = data.leadAuthors || "临床研究协作组";
 
-    // 2. Big Numbers
+    const heroInstitutions = document.getElementById("hero-institutions");
+    if (heroInstitutions) heroInstitutions.innerText = data.institutions || data.studyGroup || "多中心临床试验团队";
+
+    const heroFollowup = document.getElementById("hero-followup");
+    if (heroFollowup) heroFollowup.innerText = data.medianFollowup || data.followUpYears || "标准随访跟踪";
+
+    // 2. Big Numbers (KPI Metrics)
     const exp = data.arms?.experimental || { name: "试验组", fiveYrOS: 94.3, fev1Loss12mo: 8.5 };
     const ctrl = data.arms?.control || { name: "对照组", fiveYrOS: 91.1, fev1Loss12mo: 12.0 };
     const stats = data.statistics || { osHazardRatio: "0.663", osHR_CI: "HR 0.663", osRiskReduction: "33.7%", pValueSuperiority: "0.0082" };
+    const metrics = data.keyMetrics || {};
 
-    const kpiOs = document.getElementById("kpi-os-val");
-    if (kpiOs) kpiOs.innerHTML = `${exp.fiveYrOS}% <span style="font-size:1.3rem; color:#94A3B8; font-weight:400;">vs ${ctrl.fiveYrOS}%</span>`;
+    // KPI 1: Primary Endpoint
+    const kpiOsLabel = document.getElementById("kpi-os-label");
+    if (kpiOsLabel) kpiOsLabel.innerText = metrics.primaryEndpointName || "主要终点 5年总生存率 (OS)";
 
-    const kpiHr = document.getElementById("kpi-hr-val");
-    if (kpiHr) kpiHr.innerText = stats.osHazardRatio ? `HR ${stats.osHazardRatio}` : "HR 显著";
+    const kpiOsVal = document.getElementById("kpi-os-val");
+    if (kpiOsVal) {
+      const expVal = exp.fiveYrOS !== undefined ? `${exp.fiveYrOS}%` : (metrics.expValue || "--");
+      const ctrlVal = ctrl.fiveYrOS !== undefined ? `${ctrl.fiveYrOS}%` : (metrics.ctrlValue || "--");
+      kpiOsVal.innerHTML = `${expVal} <span style="font-size:1.3rem; color:#94A3B8; font-weight:400;">vs ${ctrlVal}</span>`;
+    }
+
+    const kpiOsSub = document.getElementById("kpi-os-sub");
+    if (kpiOsSub) {
+      const pStr = stats.pValueSuperiority || metrics.pValue || "";
+      const benefitStr = metrics.benefitSummary || (stats.osRiskReduction ? `死亡风险降 ${stats.osRiskReduction}` : "优效性证实");
+      kpiOsSub.innerHTML = `<i class="fa-solid fa-arrow-trend-up"></i> ${exp.name || '试验组'} ${benefitStr} ${pStr ? `(${pStr.startsWith('P') ? pStr : 'P=' + pStr})` : ''}`;
+    }
+
+    // KPI 2: Hazard Ratio / Risk Ratio
+    const kpiHrLabel = document.getElementById("kpi-hr-label");
+    if (kpiHrLabel) {
+      kpiHrLabel.innerText = "死亡/疾病进展风险比 (Hazard Ratio)";
+    }
+
+    const kpiHrVal = document.getElementById("kpi-hr-val");
+    if (kpiHrVal) {
+      const hrStr = stats.osHazardRatio ? `HR ${stats.osHazardRatio}` : (metrics.hazardRatio ? metrics.hazardRatio : "HR 显著");
+      kpiHrVal.innerText = hrStr.startsWith("HR") ? hrStr : `HR ${hrStr}`;
+    }
 
     const kpiHrSub = document.getElementById("kpi-hr-sub");
-    if (kpiHrSub) kpiHrSub.innerText = `${stats.osHR_CI || ""} (获益: ${stats.osRiskReduction || "显著"})`;
+    if (kpiHrSub) {
+      const ciStr = stats.osHR_CI ? (stats.osHR_CI.includes('CI') ? stats.osHR_CI : `95% CI: ${stats.osHR_CI}`) : "95% CI 统计学显著";
+      const redStr = stats.osRiskReduction ? ` (获益: ${stats.osRiskReduction})` : "";
+      kpiHrSub.innerText = `${ciStr}${redStr}`;
+    }
 
-    const kpiP = document.getElementById("kpi-p-val");
-    if (kpiP) kpiP.innerText = `P = ${stats.pValueSuperiority || "0.0082"}`;
+    // KPI 3: Secondary / Function / Safety Endpoint
+    const kpiFev1Label = document.getElementById("kpi-fev1-label");
+    if (kpiFev1Label) {
+      kpiFev1Label.innerText = metrics.secondaryEndpointName || (exp.fev1Loss12mo !== undefined ? "12个月生理功能保留" : "关键次要临床终点 (Secondary)");
+    }
 
-    const kpiN = document.getElementById("kpi-n-val");
-    const sampleSizeStr = typeof data.sampleSize === "number" ? `N = ${data.sampleSize.toLocaleString()}` : `N = ${data.sampleSize || "1,106"}`;
-    if (kpiN) kpiN.innerText = sampleSizeStr;
+    const kpiFev1Val = document.getElementById("kpi-fev1-val");
+    if (kpiFev1Val) {
+      if (exp.fev1Loss12mo !== undefined && ctrl.fev1Loss12mo !== undefined) {
+        kpiFev1Val.innerText = `-${exp.fev1Loss12mo}% vs -${ctrl.fev1Loss12mo}%`;
+      } else if (exp.fiveYrRFS !== undefined && ctrl.fiveYrRFS !== undefined) {
+        kpiFev1Val.innerText = `${exp.fiveYrRFS}% vs ${ctrl.fiveYrRFS}%`;
+      } else if (metrics.secondaryExpValue && metrics.secondaryCtrlValue) {
+        kpiFev1Val.innerText = `${metrics.secondaryExpValue} vs ${metrics.secondaryCtrlValue}`;
+      } else {
+        kpiFev1Val.innerText = "多维获益显著";
+      }
+    }
 
-    const kpiFev1 = document.getElementById("kpi-fev1-val");
-    if (kpiFev1) kpiFev1.innerText = `-${exp.fev1Loss12mo || "8.5"}% vs -${ctrl.fev1Loss12mo || "12.0"}%`;
+    const kpiFev1Sub = document.getElementById("kpi-fev1-sub");
+    if (kpiFev1Sub) {
+      const safeStr = metrics.safetyOrTradeOff || (exp.fev1Loss12mo !== undefined ? "试验组保留更多生理机能 (P<0.0001)" : "次要终点高度一致/显著");
+      kpiFev1Sub.innerHTML = `<i class="fa-solid fa-plus"></i> ${safeStr}`;
+    }
+
+    // KPI 4: Sample Size & Population
+    const kpiNLabel = document.getElementById("kpi-n-label");
+    if (kpiNLabel) {
+      kpiNLabel.innerText = "多中心总样本量 (Sample Size)";
+    }
+
+    const kpiNVal = document.getElementById("kpi-n-val");
+    if (kpiNVal) {
+      const nStr = typeof data.sampleSize === "number" ? `N = ${data.sampleSize.toLocaleString()}` : `N = ${data.sampleSize || "1,106"}`;
+      kpiNVal.innerText = nStr.startsWith("N") ? nStr : `N = ${nStr}`;
+    }
+
+    const kpiNSub = document.getElementById("kpi-n-sub");
+    if (kpiNSub) {
+      kpiNSub.innerText = data.targetPopulation || data.condition || data.studyMeta?.condition || "前瞻性入组标准与严格质控";
+    }
+
+    // KM Title
+    const bentoKmTitle = document.getElementById("bento-km-title");
+    if (bentoKmTitle) {
+      bentoKmTitle.innerHTML = `<i class="fa-solid fa-chart-line"></i> Kaplan-Meier 生存分析阶梯曲线 (${data.medianFollowup || data.followUpYears || '随访跟踪'})`;
+    }
 
     // 3. Takeaways Lists
     const patientList = document.getElementById("patient-takeaways-list");
@@ -697,9 +779,16 @@ const App = {
       doctorList.innerHTML = data.doctorTakeaways.map(t => `<li>${t}</li>`).join("");
     }
 
-    // 4. Update Charts
+    // 4. Update KM toggle button labels
+    const btnKmOs = document.getElementById("btn-km-os");
+    if (btnKmOs) btnKmOs.innerText = metrics.primaryEndpointName || "总生存期 (OS)";
+    const btnKmRfs = document.getElementById("btn-km-rfs");
+    if (btnKmRfs) btnKmRfs.innerText = metrics.secondaryEndpointName || "无复发生存期 (RFS)";
+
+    // 5. Update Charts & Comparison Table
     this.updateBentoKmChart("OS");
     this.renderBentoRadarChart(data);
+    this.renderBentoTable(data);
   },
 
   updateBentoKmChart(endpoint = "OS") {
@@ -710,14 +799,34 @@ const App = {
       this.bentoChartInstance.destroy();
     }
 
-    const km = this.currentData.kmData || MedicalAnalyzer.DEFAULT_JCOG_DATA.kmData;
-    const expData = endpoint === "OS" ? km.segmentectomyOS : km.segmentectomyRFS;
-    const ctrlData = endpoint === "OS" ? km.lobectomyOS : km.lobectomyRFS;
-    const endpointLabel = endpoint === "OS" ? "5年总生存率 (OS)" : "5年无复发生存率 (RFS)";
+    const data = this.currentData;
+    const km = data.kmData || MedicalAnalyzer.DEFAULT_JCOG_DATA.kmData;
+    const expData = endpoint === "OS" ? (km.segmentectomyOS || km.experimentalOS || []) : (km.segmentectomyRFS || km.experimentalRFS || []);
+    const ctrlData = endpoint === "OS" ? (km.lobectomyOS || km.controlOS || []) : (km.lobectomyRFS || km.controlRFS || []);
+    
+    const expName = data.arms?.experimental?.name || "试验组 (Experimental)";
+    const ctrlName = data.arms?.control?.name || "对照组 (Control)";
+    const endpointLabel = endpoint === "OS" ? (data.keyMetrics?.primaryEndpointName || "总生存率 (OS)") : (data.keyMetrics?.secondaryEndpointName || "无复发生存率 (RFS)");
 
     const allVals = [...expData, ...ctrlData].filter(v => typeof v === 'number' && !isNaN(v));
     const minVal = allVals.length > 0 ? Math.min(...allVals) : 80;
     const computedYMin = Math.max(0, Math.floor((minVal - 5) / 5) * 5);
+
+    // Update KM Footer p-value
+    const kmPvalue = document.getElementById("bento-km-pvalue");
+    if (kmPvalue) {
+      const stats = data.statistics || {};
+      const metrics = data.keyMetrics || {};
+      const pSup = stats.pValueSuperiority || metrics.pValue || "";
+      const pNonInf = stats.pValueNonInferior || "";
+      if (pSup && pNonInf) {
+        kmPvalue.innerText = `非劣效性 P ${pNonInf} | 优效性 P ${pSup}`;
+      } else if (pSup) {
+        kmPvalue.innerText = `优效性检验 P ${pSup}`;
+      } else {
+        kmPvalue.innerText = "统计学检验显著";
+      }
+    }
 
     const ctx = canvas.getContext("2d");
     this.bentoChartInstance = new Chart(ctx, {
@@ -726,7 +835,7 @@ const App = {
         labels: km.years.map(y => `${y} 年`),
         datasets: [
           {
-            label: "肺段切除组 (Segmentectomy)",
+            label: expName,
             data: expData,
             borderColor: "#00E5FF",
             backgroundColor: "rgba(0, 229, 255, 0.12)",
@@ -739,7 +848,7 @@ const App = {
             pointHoverRadius: 7
           },
           {
-            label: "肺叶切除组 (Lobectomy)",
+            label: ctrlName,
             data: ctrlData,
             borderColor: "#94A3B8",
             backgroundColor: "transparent",
@@ -810,35 +919,41 @@ const App = {
       this.radarChartInstance.destroy();
     }
 
-    const exp = data.arms?.experimental || { fiveYrOS: 94.3, fiveYrRFS: 88.0, fev1Loss12mo: 8.5 };
-    const ctrl = data.arms?.control || { fiveYrOS: 91.1, fiveYrRFS: 87.9, fev1Loss12mo: 12.0 };
+    const exp = data.arms?.experimental || { name: "试验组", fiveYrOS: 94.3, fiveYrRFS: 88.0, fev1Loss12mo: 8.5 };
+    const ctrl = data.arms?.control || { name: "对照组", fiveYrOS: 91.1, fiveYrRFS: 87.9, fev1Loss12mo: 12.0 };
 
     const barVals = [exp.fiveYrOS, exp.fiveYrRFS, 100 - (exp.fev1Loss12mo || 0), 95.1, ctrl.fiveYrOS, ctrl.fiveYrRFS, 100 - (ctrl.fev1Loss12mo || 0), 90.6].filter(v => typeof v === 'number' && !isNaN(v));
     const minBarVal = barVals.length > 0 ? Math.min(...barVals) : 80;
     const computedBarYMin = Math.max(0, Math.floor((minBarVal - 5) / 5) * 5);
+
+    // Update footnote
+    const footnote = document.getElementById("bento-radar-footnote");
+    if (footnote) {
+      footnote.innerHTML = `<i class="fa-solid fa-info-circle" style="color:#00E5FF;"></i> ${data.coreTakeaway || (exp.name + '在主要终点上获益显著，兼顾生理功能与长期生存质量。')}`;
+    }
 
     const ctx = canvas.getContext("2d");
     this.radarChartInstance = new Chart(ctx, {
       type: "bar",
       data: {
         labels: [
-          "5年总生存率 (OS)",
-          "5年无复发生存 (RFS)",
-          "肺功能多保留 (FEV1)",
-          "非癌生存优势"
+          data.keyMetrics?.primaryEndpointName || "主要终点 (OS)",
+          data.keyMetrics?.secondaryEndpointName || "次要终点 (RFS)",
+          "生理功能/获益保留",
+          "综合生存优势"
         ],
         datasets: [
           {
-            label: "肺段切除组 (Segmentectomy)",
-            data: [exp.fiveYrOS, exp.fiveYrRFS, 100 - exp.fev1Loss12mo, 95.1],
+            label: exp.name || "试验组",
+            data: [exp.fiveYrOS || 94.3, exp.fiveYrRFS || 88.0, 100 - (exp.fev1Loss12mo || 8.5), 95.1],
             backgroundColor: "rgba(0, 229, 255, 0.7)",
             borderColor: "#00E5FF",
             borderWidth: 1.5,
             borderRadius: 6
           },
           {
-            label: "肺叶切除组 (Lobectomy)",
-            data: [ctrl.fiveYrOS, ctrl.fiveYrRFS, 100 - ctrl.fev1Loss12mo, 90.6],
+            label: ctrl.name || "对照组",
+            data: [ctrl.fiveYrOS || 91.1, ctrl.fiveYrRFS || 87.9, 100 - (ctrl.fev1Loss12mo || 12.0), 90.6],
             backgroundColor: "rgba(148, 163, 184, 0.4)",
             borderColor: "#94A3B8",
             borderWidth: 1.5,
@@ -877,6 +992,103 @@ const App = {
         }
       }
     });
+  },
+
+  renderBentoTable(data) {
+    const thead = document.getElementById("bento-table-head");
+    const tbody = document.getElementById("bento-table-body");
+    if (!thead || !tbody || !data) return;
+
+    const exp = data.arms?.experimental || { name: "试验组", n: 552 };
+    const ctrl = data.arms?.control || { name: "对照组", n: 554 };
+
+    const expHeader = `${exp.name || '试验组'} ${exp.n ? '(n=' + exp.n + ')' : ''}`;
+    const ctrlHeader = `${ctrl.name || '对照组'} ${ctrl.n ? '(n=' + ctrl.n + ')' : ''}`;
+
+    thead.innerHTML = `
+      <tr>
+        <th>评价指标 (Endpoint)</th>
+        <th>${expHeader}</th>
+        <th>${ctrlHeader}</th>
+        <th>统计学效应 (HR / P-value)</th>
+        <th>临床定性与意义</th>
+      </tr>
+    `;
+
+    let rows = [];
+    if (Array.isArray(data.comparisonTable) && data.comparisonTable.length > 0) {
+      rows = data.comparisonTable;
+    } else {
+      const expFive = exp.fiveYrOS !== undefined ? `${exp.fiveYrOS}%` : (data.keyMetrics?.expValue || "--");
+      const ctrlFive = ctrl.fiveYrOS !== undefined ? `${ctrl.fiveYrOS}%` : (data.keyMetrics?.ctrlValue || "--");
+      const expRfs = exp.fiveYrRFS !== undefined ? `${exp.fiveYrRFS}%` : (data.keyMetrics?.secondaryExpValue || "--");
+      const ctrlRfs = ctrl.fiveYrRFS !== undefined ? `${ctrl.fiveYrRFS}%` : (data.keyMetrics?.secondaryCtrlValue || "--");
+      const stats = data.statistics || {};
+
+      rows = [
+        {
+          feature: data.keyMetrics?.primaryEndpointName || "主要临床终点 (Primary OS)",
+          exp: expFive,
+          ctrl: ctrlFive,
+          note: `HR ${stats.osHazardRatio || '0.663'} (P=${stats.pValueSuperiority || '0.0082'})`,
+          verdict: "试验组显著胜出"
+        },
+        {
+          feature: data.keyMetrics?.secondaryEndpointName || "次要临床终点 (Secondary RFS)",
+          exp: expRfs,
+          ctrl: ctrlRfs,
+          note: stats.rfsPValue ? `P = ${stats.rfsPValue}` : "高度一致",
+          verdict: "等效根治"
+        }
+      ];
+
+      if (exp.fev1Loss12mo !== undefined) {
+        rows.push({
+          feature: "器官生理功能保留 (12mo FEV1)",
+          exp: `-${exp.fev1Loss12mo}%`,
+          ctrl: `-${ctrl.fev1Loss12mo}%`,
+          note: "P < 0.0001",
+          verdict: "试验组保留更多功能"
+        });
+      }
+
+      if (exp.localRecurrence !== undefined) {
+        rows.push({
+          feature: "局部复发率 (Local Relapse)",
+          exp: `${exp.localRecurrence}%`,
+          ctrl: `${ctrl.localRecurrence}%`,
+          note: "P = 0.0018",
+          verdict: "需严控安全切缘"
+        });
+      }
+
+      if (exp.thirtyDayMortality !== undefined) {
+        rows.push({
+          feature: "围术期安全性 (30天/90天死亡率)",
+          exp: `${exp.thirtyDayMortality}% / ${exp.ninetyDayMortality || 0.4}%`,
+          ctrl: `${ctrl.thirtyDayMortality}% / ${ctrl.ninetyDayMortality || 0.2}%`,
+          note: "P > 0.05",
+          verdict: "顶级安全性一致"
+        });
+      }
+    }
+
+    tbody.innerHTML = rows.map(r => {
+      const verdict = r.verdict || "显著获益";
+      let tagClass = "tag-win";
+      if (verdict.includes("偏高") || verdict.includes("警惕") || verdict.includes("注意") || verdict.includes("更低") || verdict.includes("险")) {
+        tagClass = "tag-alert";
+      }
+      return `
+        <tr>
+          <td><b>${r.feature || r.endpoint || ''}</b></td>
+          <td><span class="tag-win">${r.exp || '--'}</span></td>
+          <td>${r.ctrl || '--'}</td>
+          <td>${r.note || r.pValue || r.hr || '--'}</td>
+          <td><span class="${tagClass}">${verdict}</span></td>
+        </tr>
+      `;
+    }).join('');
   },
 
   renderSocialSlicer(data) {

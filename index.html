@@ -229,196 +229,144 @@
       <div id="bento-main-content" style="display: none;">
         <!-- Row 1: Hero Header Card -->
         <div class="glass-card hero-header-card">
-          <div class="meta-badges">
-            <span id="hero-journal-badge" class="badge badge-lancet">《The Lancet》2022 顶刊</span>
-            <span class="badge badge-jcog">JCOG0802 / WJOG4607L</span>
-            <span class="badge badge-phase3">Phase 3 RCT 多中心试验</span>
-            <span id="hero-doi" class="badge" style="background: rgba(255,255,255,0.06); color:#94A3B8;">DOI: 10.1016/S0140-6736(21)02333-3</span>
+          <div id="hero-meta-badges" class="meta-badges">
+            <!-- Rendered dynamically by app.js -->
           </div>
-          <h2 id="hero-title" class="hero-study-title">JCOG0802 / WJOG4607L 早期肺癌生存率里程碑研究</h2>
-          <p id="hero-full-en" class="hero-study-sub">
-            Segmentectomy versus lobectomy in small-sized peripheral non-small-cell lung cancer: a multicentre, open-label, phase 3, randomised, controlled, non-inferiority trial
-          </p>
+          <h2 id="hero-title" class="hero-study-title">医学研究临床生存率报告</h2>
+          <p id="hero-full-en" class="hero-study-sub"></p>
           <div style="margin-top:12px; font-size:0.82rem; color:#64748B; display:flex; gap:20px; flex-wrap:wrap;">
-            <span><i class="fa-solid fa-user-doctor" style="color:#00E5FF; margin-right:4px;"></i>主要作者：<span id="hero-authors" style="color:#CBD5E1;">Hisashi Saji, Morihito Okada 等</span></span>
-            <span><i class="fa-solid fa-hospital" style="color:#00E5FF; margin-right:4px;"></i>研究机构：<span style="color:#CBD5E1;">全日本 70 家顶尖医疗中心</span></span>
-            <span><i class="fa-solid fa-clock-rotate-left" style="color:#00E5FF; margin-right:4px;"></i>中位随访：<span style="color:#CBD5E1;">7.3 年 (88.2 个月)</span></span>
+            <span><i class="fa-solid fa-user-doctor" style="color:#00E5FF; margin-right:4px;"></i>主要作者：<span id="hero-authors" style="color:#CBD5E1;">--</span></span>
+            <span><i class="fa-solid fa-hospital" style="color:#00E5FF; margin-right:4px;"></i>研究机构：<span id="hero-institutions" style="color:#CBD5E1;">--</span></span>
+            <span><i class="fa-solid fa-clock-rotate-left" style="color:#00E5FF; margin-right:4px;"></i>中位随访：<span id="hero-followup" style="color:#CBD5E1;">--</span></span>
           </div>
         </div>
 
-      <!-- Row 2: Bento Big Numbers (KPI Metrics) -->
-      <div class="bento-grid">
-        <div class="glass-card col-3 kpi-card">
-          <div class="kpi-label">
-            <span>5年总生存率 (5-Yr OS)</span>
-            <i class="fa-solid fa-heart-pulse" style="color:#00E5FF;"></i>
-          </div>
-          <div class="kpi-number-group">
-            <div id="kpi-os-val" class="kpi-big-number kpi-number-cyan">94.3% <span style="font-size:1.3rem; color:#94A3B8; font-weight:400;">vs 91.1%</span></div>
-          </div>
-          <div class="kpi-subtext" style="color:#10B981; font-weight:600;">
-            <i class="fa-solid fa-arrow-trend-up"></i> 肺段组优效性证实 (P=0.0082)
-          </div>
-        </div>
-
-        <div class="glass-card col-3 kpi-card">
-          <div class="kpi-label">
-            <span>死亡风险比 (Hazard Ratio)</span>
-            <i class="fa-solid fa-shield-halved" style="color:#10B981;"></i>
-          </div>
-          <div class="kpi-number-group">
-            <div id="kpi-hr-val" class="kpi-big-number kpi-number-emerald">HR 0.663</div>
-          </div>
-          <div id="kpi-hr-sub" class="kpi-subtext">95% CI: 0.474-0.927 (死亡风险降 33.7%)</div>
-        </div>
-
-        <div class="glass-card col-3 kpi-card">
-          <div class="kpi-label">
-            <span>12个月肺功能损失(FEV1)</span>
-            <i class="fa-solid fa-lungs" style="color:#00E5FF;"></i>
-          </div>
-          <div class="kpi-number-group">
-            <div id="kpi-fev1-val" class="kpi-big-number kpi-number-white">-8.5% vs -12.0%</div>
-          </div>
-          <div class="kpi-subtext" style="color:#00E5FF;">
-            <i class="fa-solid fa-plus"></i> 肺段组多保留 3.5% 肺功能 (P<0.0001)
-          </div>
-        </div>
-
-        <div class="glass-card col-3 kpi-card">
-          <div class="kpi-label">
-            <span>多中心样本总量 (ITT)</span>
-            <i class="fa-solid fa-users" style="color:#F59E0B;"></i>
-          </div>
-          <div class="kpi-number-group">
-            <div id="kpi-n-val" class="kpi-big-number kpi-number-white">N = 1,106</div>
-          </div>
-          <div class="kpi-subtext">≤2cm 外周早期肺癌 (CTR > 0.5)</div>
-        </div>
-      </div>
-
-      <!-- Row 3: Kaplan-Meier Survival Curve & Comparison Chart -->
-      <div class="bento-grid">
-        <!-- KM Curve (Span 8) -->
-        <div class="glass-card col-8">
-          <div class="chart-header">
-            <div class="card-section-title">
-              <i class="fa-solid fa-chart-line"></i> Kaplan-Meier 生存分析阶梯曲线 (0-7年随访)
+        <!-- Row 2: Bento Big Numbers (KPI Metrics) -->
+        <div class="bento-grid">
+          <div class="glass-card col-3 kpi-card">
+            <div class="kpi-label">
+              <span id="kpi-os-label">主要终点 (Primary Endpoint)</span>
+              <i class="fa-solid fa-heart-pulse" style="color:#00E5FF;"></i>
             </div>
-            <div style="display:flex; gap:6px;">
-              <button id="btn-km-os" class="ratio-btn active" style="padding:4px 10px; font-size:0.75rem;">总生存期 (OS)</button>
-              <button id="btn-km-rfs" class="ratio-btn" style="padding:4px 10px; font-size:0.75rem;">无复发生存期 (RFS)</button>
+            <div class="kpi-number-group">
+              <div id="kpi-os-val" class="kpi-big-number kpi-number-cyan">-- <span style="font-size:1.3rem; color:#94A3B8; font-weight:400;">vs --</span></div>
+            </div>
+            <div id="kpi-os-sub" class="kpi-subtext" style="color:#10B981; font-weight:600;">
+              <i class="fa-solid fa-arrow-trend-up"></i> 获益证实
             </div>
           </div>
-          <div class="chart-container-box">
-            <canvas id="bento-km-chart"></canvas>
-          </div>
-          <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:0.75rem; color:#64748B;">
-            <span><i class="fa-solid fa-circle-check" style="color:#10B981;"></i> 阶梯状 Stepped 真实随访轨迹</span>
-            <span>非劣效性 P < 0.0001 | 优效性 P = 0.0082</span>
-          </div>
-        </div>
 
-        <!-- Radar / Bar Multi-metric comparison (Span 4) -->
-        <div class="glass-card col-4">
-          <div class="chart-header">
-            <div class="card-section-title">
-              <i class="fa-solid fa-scale-balanced"></i> 多维度临床终点对比
+          <div class="glass-card col-3 kpi-card">
+            <div class="kpi-label">
+              <span id="kpi-hr-label">风险比 (Hazard Ratio)</span>
+              <i class="fa-solid fa-shield-halved" style="color:#10B981;"></i>
+            </div>
+            <div class="kpi-number-group">
+              <div id="kpi-hr-val" class="kpi-big-number kpi-number-emerald">HR --</div>
+            </div>
+            <div id="kpi-hr-sub" class="kpi-subtext">95% CI: --</div>
+          </div>
+
+          <div class="glass-card col-3 kpi-card">
+            <div class="kpi-label">
+              <span id="kpi-fev1-label">次要终点 / 生理功能获益</span>
+              <i class="fa-solid fa-lungs" style="color:#00E5FF;"></i>
+            </div>
+            <div class="kpi-number-group">
+              <div id="kpi-fev1-val" class="kpi-big-number kpi-number-white">-- vs --</div>
+            </div>
+            <div id="kpi-fev1-sub" class="kpi-subtext" style="color:#00E5FF;">
+              <i class="fa-solid fa-plus"></i> 次要终点评估
             </div>
           </div>
-          <div class="chart-container-box">
-            <canvas id="bento-radar-chart"></canvas>
-          </div>
-          <div style="font-size:0.75rem; color:#94A3B8; margin-top:10px; line-height:1.4;">
-            <i class="fa-solid fa-info-circle" style="color:#00E5FF;"></i> 肺段组在总生存率和肺功能上占优，非肿瘤死因（心脑血管/呼吸感染）大幅降低。
-          </div>
-        </div>
-      </div>
 
-      <!-- Row 4: Detailed Evidence Table -->
-      <div class="glass-card">
-        <div class="card-section-title" style="margin-bottom:12px;">
-          <i class="fa-solid fa-table-list"></i> 核心试验终点全景对照数据 (Clinical Endpoints Comparison)
-        </div>
-        <div style="overflow-x: auto;">
-          <table class="medical-table">
-            <thead>
-              <tr>
-                <th>评价指标 (Endpoint)</th>
-                <th>解剖性肺段切除组 (n=552)</th>
-                <th>标准肺叶切除组 (n=554)</th>
-                <th>统计学效应 (HR / P-value)</th>
-                <th>临床定性与意义</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><b>5年总生存率 (5-Yr OS)</b></td>
-                <td><span class="tag-win">94.3% (92.1 - 96.0%)</span></td>
-                <td>91.1% (88.4 - 93.2%)</td>
-                <td>HR 0.663 (0.474-0.927), P=0.0082</td>
-                <td><span class="tag-win">肺段组优效证实 (死亡风险降33.7%)</span></td>
-              </tr>
-              <tr>
-                <td><b>5年无复发生存率 (5-Yr RFS)</b></td>
-                <td>88.0% (85.0 - 90.4%)</td>
-                <td>87.9% (84.8 - 90.3%)</td>
-                <td>HR 0.998, P=0.9889</td>
-                <td>肿瘤根治彻底性两组高度一致</td>
-              </tr>
-              <tr>
-                <td><b>局部切缘复发率 (Local Relapse)</b></td>
-                <td><span class="tag-alert">10.5% (58 例)</span></td>
-                <td>5.4% (30 例)</td>
-                <td>P = 0.0018 (差异显著)</td>
-                <td>肺段组局部复发偏高，需严控切缘 ≥2cm</td>
-              </tr>
-              <tr>
-                <td><b>12个月 FEV1 肺功能损失</b></td>
-                <td><span class="tag-win">-8.5% (中位数)</span></td>
-                <td>-12.0% (中位数)</td>
-                <td>差值 3.5% (P < 0.0001)</td>
-                <td><span class="tag-win">肺段组显著保留更多通气能力</span></td>
-              </tr>
-              <tr>
-                <td><b>非癌症死因人数 (7.3年随访)</b></td>
-                <td><span class="tag-win">27 例 (脑/心/肺疾病)</span></td>
-                <td>52 例 (脑/心/肺疾病)</td>
-                <td>肺段组大幅减少</td>
-                <td>保肺减少远期呼吸与心脑合并症死亡</td>
-              </tr>
-              <tr>
-                <td><b>30天 / 90天围术期死亡率</b></td>
-                <td>0.0% / 0.4% (2例)</td>
-                <td>0.0% / 0.2% (1例)</td>
-                <td>无显著统计学差异</td>
-                <td>两种术式均具备顶级安全性</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Row 5: Dual Audience Takeaways (Doctor vs Patient) -->
-      <div class="dual-takeaways">
-        <div class="takeaway-box doctor-box">
-          <div class="takeaway-title" style="color:#00E5FF;">
-            <i class="fa-solid fa-stethoscope"></i> 临床专家与同行研讨启示 (For Oncologists & Surgeons)
+          <div class="glass-card col-3 kpi-card">
+            <div class="kpi-label">
+              <span id="kpi-n-label">多中心总样本量 (Sample Size)</span>
+              <i class="fa-solid fa-users" style="color:#F59E0B;"></i>
+            </div>
+            <div class="kpi-number-group">
+              <div id="kpi-n-val" class="kpi-big-number kpi-number-white">N = --</div>
+            </div>
+            <div id="kpi-n-sub" class="kpi-subtext">目标人群与入组标准</div>
           </div>
-          <ul id="doctor-takeaways-list" class="takeaway-list">
-            <!-- Filled dynamically -->
-          </ul>
         </div>
 
-        <div class="takeaway-box patient-box">
-          <div class="takeaway-title" style="color:#10B981;">
-            <i class="fa-solid fa-hand-holding-heart"></i> 患者及家属通俗科普指南 (For Patients & Families)
+        <!-- Row 3: Kaplan-Meier Survival Curve & Comparison Chart -->
+        <div class="bento-grid">
+          <!-- KM Curve (Span 8) -->
+          <div class="glass-card col-8">
+            <div class="chart-header">
+              <div id="bento-km-title" class="card-section-title">
+                <i class="fa-solid fa-chart-line"></i> Kaplan-Meier 生存分析阶梯曲线
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button id="btn-km-os" class="ratio-btn active" style="padding:4px 10px; font-size:0.75rem;">主要终点 (OS)</button>
+                <button id="btn-km-rfs" class="ratio-btn" style="padding:4px 10px; font-size:0.75rem;">次要终点 (RFS)</button>
+              </div>
+            </div>
+            <div class="chart-container-box">
+              <canvas id="bento-km-chart"></canvas>
+            </div>
+            <div id="bento-km-footer" style="display:flex; justify-content:space-between; margin-top:10px; font-size:0.75rem; color:#64748B;">
+              <span><i class="fa-solid fa-circle-check" style="color:#10B981;"></i> 阶梯状 Stepped 真实随访轨迹</span>
+              <span id="bento-km-pvalue">统计学检验显著</span>
+            </div>
           </div>
-          <ul id="patient-takeaways-list" class="takeaway-list">
-            <!-- Filled dynamically -->
-          </ul>
+
+          <!-- Radar / Bar Multi-metric comparison (Span 4) -->
+          <div class="glass-card col-4">
+            <div class="chart-header">
+              <div class="card-section-title">
+                <i class="fa-solid fa-scale-balanced"></i> 多维度临床终点对比
+              </div>
+            </div>
+            <div class="chart-container-box">
+              <canvas id="bento-radar-chart"></canvas>
+            </div>
+            <div id="bento-radar-footnote" style="font-size:0.75rem; color:#94A3B8; margin-top:10px; line-height:1.4;">
+              <i class="fa-solid fa-info-circle" style="color:#00E5FF;"></i> 综合临床获益与结局分析
+            </div>
+          </div>
         </div>
-      </div>
+
+        <!-- Row 4: Detailed Evidence Table -->
+        <div class="glass-card">
+          <div class="card-section-title" style="margin-bottom:12px;">
+            <i class="fa-solid fa-table-list"></i> 核心试验终点全景对照数据 (Clinical Endpoints Comparison)
+          </div>
+          <div style="overflow-x: auto;">
+            <table class="medical-table">
+              <thead id="bento-table-head">
+                <!-- Rendered dynamically by app.js -->
+              </thead>
+              <tbody id="bento-table-body">
+                <!-- Rendered dynamically by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Row 5: Dual Audience Takeaways (Doctor vs Patient) -->
+        <div class="dual-takeaways">
+          <div class="takeaway-box doctor-box">
+            <div class="takeaway-title" style="color:#00E5FF;">
+              <i class="fa-solid fa-stethoscope"></i> 临床专家与同行研讨启示 (For Oncologists & Physicians)
+            </div>
+            <ul id="doctor-takeaways-list" class="takeaway-list">
+              <!-- Filled dynamically by app.js -->
+            </ul>
+          </div>
+
+          <div class="takeaway-box patient-box">
+            <div class="takeaway-title" style="color:#10B981;">
+              <i class="fa-solid fa-hand-holding-heart"></i> 患者及家属通俗科普指南 (For Patients & Families)
+            </div>
+            <ul id="patient-takeaways-list" class="takeaway-list">
+              <!-- Filled dynamically by app.js -->
+            </ul>
+          </div>
+        </div>
       </div> <!-- End #bento-main-content -->
     </main>
 
