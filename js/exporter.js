@@ -1,10 +1,22 @@
 /**
  * js/exporter.js
- * High-Resolution Native Image Rendering (html-to-image), JSZip Batch Packaging, and Social Copywriting Exporter.
+ * High-Resolution Native Image Rendering (html-to-image), JSZip Batch Packaging, WebApp Mobile Safe Saving, and Social Copywriting Exporter.
  */
 
 const Exporter = {
   isExporting: false,
+
+  /**
+   * Detect Mobile & Standalone PWA environment
+   */
+  isStandalone() {
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || 
+           window.navigator.standalone === true;
+  },
+
+  isMobile() {
+    return /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent) || this.isStandalone();
+  },
 
   /**
    * Export all social media cards as a ZIP containing high-res PNGs
@@ -41,9 +53,15 @@ const Exporter = {
       const content = await zip.generateAsync({ type: "blob" });
       
       this.downloadBlob(content, `${baseName}_All_Slides.zip`);
+      if (typeof App !== "undefined" && App.showToast) {
+        App.showToast("✅ 全部切片卡片已成功打包下载 (ZIP)！", "success");
+      }
       return true;
     } catch (err) {
       console.error("ZIP Export error:", err);
+      if (typeof App !== "undefined" && App.showToast) {
+        App.showToast(`ZIP 打包失败: ${err.message}`, "error");
+      }
       throw err;
     } finally {
       this.isExporting = false;
@@ -56,8 +74,7 @@ const Exporter = {
 
   /**
    * Export a single card by index as high-res PNG
-   * @param {number} cardIndex 
-   * @param {string} fileName 
+   * WebApp Safe: Supports Web Share API & Preview Modal (no page navigation / no white screen)
    */
   async exportSingleCard(cardIndex = 1, fileName = "MedBento_SocialCard") {
     const card = document.getElementById(`social-card-${cardIndex}`);
@@ -70,7 +87,7 @@ const Exporter = {
 
     try {
       if (typeof App !== "undefined" && App.showToast) {
-        App.showToast(`正在导出第 ${cardIndex} 张高清切片图片...`, "info");
+        App.showToast(`正在高清渲染第 ${cardIndex} 张切片图片...`, "info");
       }
 
       // If data has a custom trial ID, use it in the filename
@@ -82,8 +99,39 @@ const Exporter = {
 
       const blob = await this.renderCardToBlob(card);
       const outName = `${customPrefix}_Slide_${cardIndex.toString().padStart(2, '0')}.png`;
+
+      // 1. If Mobile / WebApp Standalone: try Web Share API first
+      if (this.isMobile()) {
+        const file = new File([blob], outName, { type: "image/png" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: outName,
+              text: `MedBento AI 医疗切片卡片 · 第 ${cardIndex} 张`
+            });
+            if (typeof App !== "undefined" && App.showToast) {
+              App.showToast("✅ 已调起系统存储/分享，卡片已保存！", "success");
+            }
+            return;
+          } catch (shareErr) {
+            // User cancelled share or fallback needed
+            if (shareErr.name !== "AbortError") {
+              console.warn("navigator.share fallback:", shareErr);
+            }
+          }
+        }
+
+        // Show image preview modal for mobile long-press to save
+        this.showImagePreviewModal(blob, outName, `第 ${cardIndex} 张高清切片已生成`);
+        if (typeof App !== "undefined" && App.showToast) {
+          App.showToast(`✅ 高清图已就绪！可长按图片保存至手机相册`, "success");
+        }
+        return;
+      }
+
+      // 2. Standard Desktop Browser Download
       this.downloadBlob(blob, outName);
-      
       if (typeof App !== "undefined" && App.showToast) {
         App.showToast(`✅ 第 ${cardIndex} 张卡片高清图已成功下载！`, "success");
       }
@@ -134,16 +182,84 @@ const Exporter = {
 
       if (onProgress) onProgress(100, "正在导出高清长图...");
       masterCanvas.toBlob(blob => {
-        this.downloadBlob(blob, `${fileName}.png`);
+        const outName = `${fileName}.png`;
+        if (this.isMobile()) {
+          this.showImagePreviewModal(blob, outName, "完整科普长图已生成");
+        } else {
+          this.downloadBlob(blob, outName);
+        }
+        if (typeof App !== "undefined" && App.showToast) {
+          App.showToast("✅ 高清医学长图已成功生成！", "success");
+        }
       }, "image/png", 1.0);
 
       return true;
     } catch (err) {
       console.error("Long image export error:", err);
+      if (typeof App !== "undefined" && App.showToast) {
+        App.showToast(`长图导出失败: ${err.message}`, "error");
+      }
       throw err;
     } finally {
       this.isExporting = false;
     }
+  },
+
+  /**
+   * Display High-Resolution Image in Modal with Mobile Long-Press / System Share support
+   */
+  showImagePreviewModal(blob, fileName, title = "高清切片已生成") {
+    const modal = document.getElementById("modal-image-preview");
+    const imgTarget = document.getElementById("img-preview-target");
+    const titleSpan = document.getElementById("img-preview-title");
+    const btnShare = document.getElementById("btn-img-share");
+    const btnDownload = document.getElementById("btn-img-download-fallback");
+    const btnClose = document.getElementById("btn-close-img-modal");
+
+    if (!modal || !imgTarget) {
+      this.downloadBlob(blob, fileName);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(blob);
+    imgTarget.src = objectUrl;
+    if (titleSpan) titleSpan.innerText = title;
+
+    // Check system share
+    if (btnShare) {
+      const file = new File([blob], fileName, { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        btnShare.style.display = "inline-flex";
+        btnShare.onclick = async () => {
+          try {
+            await navigator.share({
+              files: [file],
+              title: fileName,
+              text: "MedBento AI 医疗切片卡片"
+            });
+          } catch(e) {}
+        };
+      } else {
+        btnShare.style.display = "none";
+      }
+    }
+
+    if (btnDownload) {
+      btnDownload.onclick = () => {
+        this.downloadBlob(blob, fileName);
+      };
+    }
+
+    const closeModal = () => {
+      modal.classList.remove("active");
+    };
+
+    if (btnClose) btnClose.onclick = closeModal;
+    modal.onclick = (e) => {
+      if (e.target === modal) closeModal();
+    };
+
+    modal.classList.add("active");
   },
 
   /**
@@ -231,24 +347,24 @@ const Exporter = {
   },
 
   /**
-   * Universal Cross-Platform File Downloader
+   * Safe Cross-Platform File Downloader (Pure non-navigating Anchor)
+   * Prevents PWA Standalone Webview white-screen navigation bugs
    */
   downloadBlob(blob, fileName) {
-    if (typeof saveAs !== "undefined") {
-      saveAs(blob, fileName);
-      return;
-    }
-
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
+    a.style.display = "none";
     a.href = url;
     a.download = fileName;
+    a.rel = "noopener noreferrer";
     document.body.appendChild(a);
     a.click();
     setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 200);
+      try {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch (e) {}
+    }, 1500);
   },
 
   /**
