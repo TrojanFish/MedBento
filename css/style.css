@@ -611,8 +611,18 @@ body {
   padding: 4px 10px;
   border-radius: 6px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.02em;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  overflow-wrap: normal !important;
+  word-wrap: normal !important;
+  flex: 0 0 auto !important;
+  min-width: max-content !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box;
 }
 .badge-lancet {
   background: #DC2626;
@@ -879,10 +889,10 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
+  gap: 6px 8px;
   margin-bottom: 4px;
   width: 100%;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 .badge-lancet,
@@ -891,13 +901,18 @@ body {
   padding: 3px 10px;
   white-space: nowrap !important;
   word-break: keep-all !important;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  overflow-wrap: normal !important;
+  word-wrap: normal !important;
+  flex: 0 0 auto !important;
+  min-width: max-content !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
   line-height: 1.2;
   border-radius: 20px;
   font-weight: 800;
+  box-sizing: border-box;
 }
 
 .badge-lancet {

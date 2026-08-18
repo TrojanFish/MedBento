@@ -294,8 +294,8 @@ const CardSlicer = {
       ${this.getHeader(stepIndex, total)}
       <div class="card-content-body" style="text-align: center;">
         <div class="card-cover-badges">
-          <span class="badge-lancet" contenteditable="true">${this.getCoverJournalBadge(data)}</span>
-          <span class="badge-jcog" contenteditable="true">${data.id || "前沿临床研究"}</span>
+          <span class="badge-lancet" style="white-space:nowrap; word-break:keep-all; min-width:max-content; flex:0 0 auto;" contenteditable="true">${this.getCoverJournalBadge(data)}</span>
+          <span class="badge-jcog" style="white-space:nowrap; word-break:keep-all; min-width:max-content; flex:0 0 auto;" contenteditable="true">${data.id || "前沿临床研究"}</span>
         </div>
 
         <h2 class="card-cover-title" contenteditable="true">
