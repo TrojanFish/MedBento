@@ -342,9 +342,9 @@ const CardSlicer = {
     return `
       ${this.getHeader(stepIndex, total)}
       <div class="card-content-body">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="padding:2px 8px; background:var(--card-highlight-bg); border:1px solid var(--card-highlight-border); border-radius:6px; font-size:0.72rem; font-weight:700; color:var(--card-accent);">STUDY DESIGN</span>
-          <h3 style="font-size:1.05rem; font-weight:800; color:var(--card-text-title); margin:0;" contenteditable="true">${sampleSizeStr}：怎么比的？</h3>
+        <div class="card-title-row">
+          <span class="card-tag-pill tag-cyan">STUDY DESIGN</span>
+          <h3 class="card-title-text" contenteditable="true">${sampleSizeStr}：怎么比的？</h3>
         </div>
 
         <div class="sc-box" style="border-left: 3.5px solid var(--card-accent);">
@@ -395,12 +395,12 @@ const CardSlicer = {
     return `
       ${this.getHeader(stepIndex, total)}
       <div class="card-content-body">
-        <div style="display:flex; align-items:center; justify-content:space-between;">
-          <div>
-            <span style="padding:2px 8px; background:var(--card-highlight-bg); border:1px solid var(--card-highlight-border); border-radius:6px; font-size:0.7rem; font-weight:700; color:var(--card-accent-green);">OS ENDPOINT</span>
-            <h3 style="font-size:1.05rem; font-weight:800; color:var(--card-text-title); margin:2px 0 0;" contenteditable="true">5年总生存率：试验组显著胜出</h3>
+        <div class="card-title-row" style="justify-content:space-between;">
+          <div style="display:flex; align-items:center; gap:6px; min-width:0; flex:1;">
+            <span class="card-tag-pill tag-green">OS ENDPOINT</span>
+            <h3 class="card-title-text" contenteditable="true">5年总生存率：试验组显著胜出</h3>
           </div>
-          <div style="text-align:right;">
+          <div style="text-align:right; flex-shrink:0; white-space:nowrap;">
             <span style="font-size:0.7rem; color:var(--card-text-muted);">P = ${stats.pValueSuperiority || '0.0082'}</span>
             <div style="font-size:0.82rem; font-weight:800; color:var(--card-accent-green);" contenteditable="true">优效性确立</div>
           </div>
@@ -447,9 +447,9 @@ const CardSlicer = {
     return `
       ${this.getHeader(stepIndex, total)}
       <div class="card-content-body">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="padding:2px 8px; background:var(--card-highlight-bg); border:1px solid var(--card-highlight-border); border-radius:6px; font-size:0.7rem; font-weight:700; color:var(--card-accent-red);">CLINICAL INSIGHTS</span>
-          <h3 style="font-size:1.05rem; font-weight:800; color:var(--card-text-title); margin:0;" contenteditable="true">核心临床启示与获益权衡</h3>
+        <div class="card-title-row">
+          <span class="card-tag-pill tag-red">CLINICAL INSIGHTS</span>
+          <h3 class="card-title-text" contenteditable="true">核心临床启示与获益权衡</h3>
         </div>
 
         <div class="sc-box" style="border-left:3.5px solid var(--card-accent-green);">
@@ -495,9 +495,9 @@ const CardSlicer = {
     return `
       ${this.getHeader(stepIndex, total)}
       <div class="card-content-body">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="padding:2px 8px; background:var(--card-highlight-bg); border:1px solid var(--card-highlight-border); border-radius:6px; font-size:0.7rem; font-weight:700; color:var(--card-accent-red);">SAFETY PROFILE</span>
-          <h3 style="font-size:1.05rem; font-weight:800; color:var(--card-text-title); margin:0;" contenteditable="true">安全性与不良事件对比</h3>
+        <div class="card-title-row">
+          <span class="card-tag-pill tag-red">SAFETY PROFILE</span>
+          <h3 class="card-title-text" contenteditable="true">安全性与不良事件对比</h3>
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
@@ -546,9 +546,9 @@ const CardSlicer = {
     return `
       ${this.getHeader(stepIndex, total)}
       <div class="card-content-body">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="padding:2px 8px; background:var(--card-highlight-bg); border:1px solid var(--card-highlight-border); border-radius:6px; font-size:0.7rem; font-weight:700; color:var(--card-accent);">SUBGROUP ANALYSIS</span>
-          <h3 style="font-size:1.05rem; font-weight:800; color:var(--card-text-title); margin:0;" contenteditable="true">关键亚组获益森林图：谁最受益？</h3>
+        <div class="card-title-row">
+          <span class="card-tag-pill tag-cyan">SUBGROUP ANALYSIS</span>
+          <h3 class="card-title-text" contenteditable="true">关键亚组获益森林图：谁最受益？</h3>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:6px;">
@@ -599,9 +599,9 @@ const CardSlicer = {
     return `
       ${this.getHeader(stepIndex, total)}
       <div class="card-content-body">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="padding:2px 8px; background:var(--card-highlight-bg); border:1px solid var(--card-highlight-border); border-radius:6px; font-size:0.7rem; font-weight:700; color:var(--card-accent-amber);">GUIDELINE & PATHWAY</span>
-          <h3 style="font-size:1.05rem; font-weight:800; color:var(--card-text-title); margin:0;" contenteditable="true">权威指南共识与诊疗全流程</h3>
+        <div class="card-title-row">
+          <span class="card-tag-pill tag-amber">GUIDELINE & PATHWAY</span>
+          <h3 class="card-title-text" contenteditable="true">权威指南共识与诊疗全流程</h3>
         </div>
 
         <div class="sc-box" style="border-left:3.5px solid var(--card-accent-amber); padding:8px 10px;">
@@ -647,9 +647,9 @@ const CardSlicer = {
     return `
       ${this.getHeader(stepIndex, total)}
       <div class="card-content-body">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="padding:2px 8px; background:var(--card-highlight-bg); border:1px solid var(--card-highlight-border); border-radius:6px; font-size:0.7rem; font-weight:700; color:var(--card-accent);">ACTION GUIDE</span>
-          <h3 style="font-size:1.05rem; font-weight:800; color:var(--card-text-title); margin:0;" contenteditable="true">患者与家属：就医四步指南</h3>
+        <div class="card-title-row">
+          <span class="card-tag-pill tag-cyan">ACTION GUIDE</span>
+          <h3 class="card-title-text" contenteditable="true">患者与家属：就医四步指南</h3>
         </div>
 
         <div class="sc-box" style="border-left:3.5px solid var(--card-accent);">

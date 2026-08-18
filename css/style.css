@@ -1286,6 +1286,62 @@ body {
   flex-shrink: 0;
 }
 
+/* Card Title Row & Anti-Wrap Section Badges */
+.card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.card-title-text {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--card-text-title);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.card-tag-pill {
+  padding: 2px 8px;
+  background: var(--card-highlight-bg);
+  border: 1px solid var(--card-highlight-border);
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  overflow-wrap: normal !important;
+  word-wrap: normal !important;
+  flex: 0 0 auto !important;
+  min-width: max-content !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1.2;
+  letter-spacing: 0.03em;
+  box-sizing: border-box;
+}
+.card-tag-pill.tag-cyan {
+  color: var(--card-accent);
+}
+.card-tag-pill.tag-green {
+  color: var(--card-accent-green);
+}
+.card-tag-pill.tag-red {
+  color: var(--card-accent-red);
+}
+.card-tag-pill.tag-amber {
+  color: var(--card-accent-amber);
+}
+
 .card-cover-title {
   font-size: 1.35rem;
   font-weight: 900;
