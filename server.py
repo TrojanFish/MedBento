@@ -27,7 +27,7 @@ import hmac
 import hashlib
 import re
 from http import cookies
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 
 # Fix Windows console encoding
@@ -432,9 +432,12 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
             self.send_cors_headers()
             self.send_header("Content-Type", mime_type)
             self.send_header("Content-Length", str(len(content)))
-            if file_path.name == "sw.js":
-                self.send_header("Service-Worker-Allowed", "/")
+            if file_path.name in ("sw.js", "manifest.json", "index.html", "login.html"):
+                if file_path.name == "sw.js":
+                    self.send_header("Service-Worker-Allowed", "/")
                 self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+            elif file_path.suffix in (".css", ".js", ".png", ".svg", ".jpg", ".jpeg", ".ico", ".woff2", ".ttf"):
+                self.send_header("Cache-Control", "public, max-age=86400, stale-while-revalidate=604800")
             else:
                 self.send_header("Cache-Control", "no-cache")
             self.end_headers()
@@ -698,7 +701,7 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
 def run_server():
     conf = get_env_config()
     server_address = (HOST, PORT)
-    httpd = HTTPServer(server_address, MedBentoRequestHandler)
+    httpd = ThreadingHTTPServer(server_address, MedBentoRequestHandler)
     print("=" * 65)
     print(" 🚀 MedBento AI - 医学报告 Bento 可视化 & 自媒体切片系统")
     print(f" 🌐 访问地址: http://localhost:{PORT}")
