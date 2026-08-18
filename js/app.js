@@ -454,6 +454,45 @@ const App = {
       });
     }
 
+    const btnCwCopyTitle = document.getElementById("btn-cw-copy-title");
+    if (btnCwCopyTitle && cwTitleInput) {
+      btnCwCopyTitle.addEventListener("click", async () => {
+        const text = cwTitleInput.value.trim();
+        if (!text) {
+          this.showToast("标题内容为空", "info");
+          return;
+        }
+        await navigator.clipboard.writeText(text);
+        this.showToast("📋 爆款标题已复制到剪贴板！", "success");
+      });
+    }
+
+    const btnCwCopyBody = document.getElementById("btn-cw-copy-body");
+    if (btnCwCopyBody && cwBodyTextarea) {
+      btnCwCopyBody.addEventListener("click", async () => {
+        const text = cwBodyTextarea.value.trim();
+        if (!text) {
+          this.showToast("正文内容为空", "info");
+          return;
+        }
+        await navigator.clipboard.writeText(text);
+        this.showToast("📋 小红书正文已复制到剪贴板！", "success");
+      });
+    }
+
+    const btnCwCopyTags = document.getElementById("btn-cw-copy-tags");
+    if (btnCwCopyTags && cwTagsInput) {
+      btnCwCopyTags.addEventListener("click", async () => {
+        const text = cwTagsInput.value.trim();
+        if (!text) {
+          this.showToast("话题标签内容为空", "info");
+          return;
+        }
+        await navigator.clipboard.writeText(text);
+        this.showToast("📋 热门话题标签已复制到剪贴板！", "success");
+      });
+    }
+
     if (btnCwCopyAll) {
       btnCwCopyAll.addEventListener("click", async () => {
         this.saveCopywriterChanges();

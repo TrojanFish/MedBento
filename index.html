@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <!-- Custom Style -->
-  <link rel="stylesheet" href="css/style.css?v=1.0.9">
+  <link rel="stylesheet" href="css/style.css?v=1.1.0">
 
   <!-- Marked.js for Markdown & Table Rendering -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
@@ -509,26 +509,50 @@
         已根据当前医学研究自动拟定小红书爆款 Hook 标题、Emoji 结构化正文与精准医疗话题标签，您可直接在此微调后一键复制。
       </p>
 
-      <div style="display:flex; flex-direction:column; gap:12px;">
-        <div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-            <label style="font-size:0.82rem; color:#CBD5E1; font-weight:700;">爆款标题 (Hook):</label>
-            <span id="title-char-count" style="font-size:0.72rem; color:#64748B;">32 字</span>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <!-- Card 1: Hook Title -->
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px 12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <label style="font-size:0.82rem; color:#CBD5E1; font-weight:700;">
+                <i class="fa-solid fa-bolt" style="color:#00E5FF; margin-right:4px;"></i>爆款标题 (Hook):
+              </label>
+              <span id="title-char-count" style="font-size:0.72rem; color:#64748B;">32 字</span>
+            </div>
+            <button id="btn-cw-copy-title" class="btn btn-secondary btn-sm" style="padding:2px 10px; font-size:0.75rem; height:26px;">
+              <i class="fa-solid fa-copy" style="color:#00E5FF;"></i> 复制标题
+            </button>
           </div>
-          <input type="text" id="cw-title-input" class="textarea-custom" style="height:42px; margin-top:0; font-weight:700; color:#00E5FF;">
+          <input type="text" id="cw-title-input" class="textarea-custom" style="height:34px; padding:6px 10px; margin-top:0; font-weight:700; color:#00E5FF; font-size:0.88rem;">
         </div>
 
-        <div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-            <label style="font-size:0.82rem; color:#CBD5E1; font-weight:700;">小红书正文 (Emoji 排版):</label>
-            <span id="body-char-count" style="font-size:0.72rem; color:#64748B;">字数统计</span>
+        <!-- Card 2: Redbook Body -->
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px 12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <label style="font-size:0.82rem; color:#CBD5E1; font-weight:700;">
+                <i class="fa-solid fa-file-lines" style="color:#10B981; margin-right:4px;"></i>小红书正文 (Emoji 排版):
+              </label>
+              <span id="body-char-count" style="font-size:0.72rem; color:#64748B;">字数统计</span>
+            </div>
+            <button id="btn-cw-copy-body" class="btn btn-secondary btn-sm" style="padding:2px 10px; font-size:0.75rem; height:26px;">
+              <i class="fa-solid fa-copy" style="color:#10B981;"></i> 复制正文
+            </button>
           </div>
-          <textarea id="cw-body-textarea" class="textarea-custom" style="height:170px; margin-top:0; line-height:1.6;"></textarea>
+          <textarea id="cw-body-textarea" class="textarea-custom" style="height:140px; padding:8px 10px; margin-top:0; line-height:1.55; font-size:0.82rem;"></textarea>
         </div>
 
-        <div>
-          <label style="font-size:0.82rem; color:#CBD5E1; font-weight:700; display:block; margin-bottom:4px;">热门话题标签 (Hashtags):</label>
-          <input type="text" id="cw-tags-input" class="textarea-custom" style="height:42px; margin-top:0; color:#10B981;">
+        <!-- Card 3: Hashtags -->
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px 12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <label style="font-size:0.82rem; color:#CBD5E1; font-weight:700;">
+              <i class="fa-solid fa-hashtag" style="color:#F59E0B; margin-right:4px;"></i>热门话题标签 (Hashtags):
+            </label>
+            <button id="btn-cw-copy-tags" class="btn btn-secondary btn-sm" style="padding:2px 10px; font-size:0.75rem; height:26px;">
+              <i class="fa-solid fa-copy" style="color:#F59E0B;"></i> 复制标签
+            </button>
+          </div>
+          <input type="text" id="cw-tags-input" class="textarea-custom" style="height:34px; padding:6px 10px; margin-top:0; color:#10B981; font-size:0.82rem;">
         </div>
       </div>
 
@@ -622,10 +646,10 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- App Scripts -->
-  <script src="js/pdf_extractor.js?v=1.0.9"></script>
-  <script src="js/medical_analyzer.js?v=1.0.9"></script>
-  <script src="js/card_slicer.js?v=1.0.9"></script>
-  <script src="js/exporter.js?v=1.0.9"></script>
-  <script src="js/app.js?v=1.0.9"></script>
+  <script src="js/pdf_extractor.js?v=1.1.0"></script>
+  <script src="js/medical_analyzer.js?v=1.1.0"></script>
+  <script src="js/card_slicer.js?v=1.1.0"></script>
+  <script src="js/exporter.js?v=1.1.0"></script>
+  <script src="js/app.js?v=1.1.0"></script>
 </body>
 </html>
