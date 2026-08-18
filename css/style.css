@@ -847,9 +847,12 @@ body {
 /* Social Cards Grid Preview */
 .social-cards-wrapper {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 440px));
+  justify-content: center;
+  justify-items: center;
   gap: 32px;
-  margin-bottom: 40px;
+  margin: 0 auto 40px;
+  width: 100%;
 }
 
 /* Individual Card Unit Wrapper (Contains Card Target + Outer Toolbar) */
@@ -858,6 +861,9 @@ body {
   flex-direction: column;
   gap: 12px;
   min-width: 0;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
   height: fit-content;
 }
 
@@ -1471,7 +1477,7 @@ body {
 }
 
 /* ==========================================================================
-   PWA & MOBILE WEBAPP STANDALONE STYLES
+   PWA & MOBILE WEBAPP STANDALONE STYLES (COMPACT HIGH-DENSITY SCREEN DISPLAY)
    ========================================================================== */
 @media all and (display-mode: standalone) {
   body {
@@ -1489,26 +1495,220 @@ body {
     -webkit-user-select: text;
   }
 
+  .app-container {
+    padding: 8px 8px 40px;
+  }
+
   .app-header {
-    padding-top: calc(14px + env(safe-area-inset-top, 0px));
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+
+  .social-cards-wrapper {
+    justify-content: center;
+    justify-items: center;
   }
 }
 
-/* Mobile Responsiveness for Header Actions */
+/* ==========================================================================
+   MOBILE & SMALL SCREEN OPTIMIZATIONS (MAX-WIDTH: 768PX)
+   Compact margins for maximum content visibility & perfectly centered cards
+   ========================================================================== */
 @media (max-width: 768px) {
-  .app-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+  /* 1. Tighten App Container for Maximum Mobile Screen Utility */
+  .app-container {
+    padding: 10px 10px 48px;
   }
+
+  /* 2. Compact Header */
+  .app-header {
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    border-radius: var(--radius-md);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .brand-group {
+    gap: 10px;
+  }
+  .brand-logo {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    border-radius: 8px;
+  }
+  .brand-title {
+    font-size: 1.05rem;
+  }
+  .brand-tag {
+    font-size: 0.7rem;
+  }
+
   .header-actions {
     width: 100%;
+    display: flex;
     justify-content: flex-start;
     overflow-x: auto;
-    padding-bottom: 4px;
+    gap: 6px;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
   }
   .header-actions .btn {
+    padding: 5px 10px;
+    font-size: 0.76rem;
     white-space: nowrap;
     flex-shrink: 0;
+  }
+
+  /* 3. Compact Glass Cards */
+  .glass-card {
+    padding: 14px 12px;
+    border-radius: var(--radius-md);
+  }
+
+  .control-section {
+    margin-bottom: 12px;
+  }
+  .control-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .dropzone {
+    padding: 14px 12px;
+  }
+  .dropzone-icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+  .dropzone-text {
+    font-size: 0.82rem;
+  }
+  .dropzone-hint {
+    font-size: 0.7rem;
+  }
+
+  .textarea-custom,
+  .markdown-rendered-preview {
+    height: 160px;
+    min-height: 140px;
+    padding: 10px 12px;
+    font-size: 0.82rem;
+  }
+
+  /* 4. Compact Navigation */
+  .view-nav {
+    padding: 4px;
+    margin-bottom: 12px;
+    border-radius: var(--radius-md);
+    flex-direction: column;
+    gap: 8px;
+  }
+  .nav-tabs {
+    width: 100%;
+    display: flex;
+  }
+  .nav-tab {
+    flex: 1;
+    justify-content: center;
+    padding: 8px 6px;
+    font-size: 0.78rem;
+  }
+
+  /* 5. Bento Dashboard Mobile Optimization */
+  .bento-dashboard, #bento-main-content {
+    gap: 12px;
+  }
+  .bento-grid {
+    gap: 12px;
+  }
+  .kpi-card {
+    padding: 12px 14px;
+  }
+  .kpi-value {
+    font-size: 1.6rem;
+  }
+  .chart-box {
+    padding: 12px;
+  }
+
+  /* 6. Slicer Toolbar Compact */
+  .slicer-toolbar {
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    gap: 10px;
+  }
+  .ratio-selector {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .ratio-btn {
+    flex: 1;
+    text-align: center;
+    padding: 5px 4px;
+    font-size: 0.75rem;
+  }
+  .watermark-group {
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+  .watermark-input {
+    flex: 1;
+  }
+
+  /* 7. Social Cards Perfectly Centered in Mobile & WebApp */
+  .social-cards-wrapper {
+    grid-template-columns: 100%;
+    max-width: 440px;
+    justify-content: center;
+    justify-items: center;
+    gap: 20px;
+    margin: 0 auto 24px;
+    padding: 0;
+  }
+
+  .social-card-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .social-card-item {
+    width: 100%;
+    max-width: 100%;
+    padding: 14px 12px 10px;
+    border-radius: 14px;
+    margin: 0 auto;
+  }
+
+  .social-card-item.ratio-3-4 {
+    min-height: auto;
+    aspect-ratio: 3 / 4;
+  }
+  .social-card-item.ratio-9-16 {
+    min-height: auto;
+    aspect-ratio: 9 / 16;
+  }
+  .social-card-item.ratio-1-1 {
+    min-height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  .card-cover-title {
+    font-size: 1.15rem;
+  }
+  .card-cover-stat {
+    font-size: 2.1rem;
+  }
+
+  .card-footer-toolbar {
+    padding: 6px 10px;
+  }
+  .card-footer-toolbar .btn-slice-dl {
+    padding: 4px 10px;
+    font-size: 0.72rem;
   }
 }
