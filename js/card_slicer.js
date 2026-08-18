@@ -276,9 +276,9 @@ const CardSlicer = {
     return `
       ${this.getHeader(stepIndex, total)}
       <div class="card-content-body" style="text-align: center;">
-        <div style="display:flex; justify-content:center; gap:8px;">
-          <span class="badge badge-lancet" style="font-size:0.75rem; padding:3px 10px;" contenteditable="true">《${data.journal || 'Lancet'}》重磅</span>
-          <span class="badge badge-jcog" style="font-size:0.75rem; padding:3px 10px;" contenteditable="true">${data.id || "前沿临床研究"}</span>
+        <div style="display:flex; justify-content:center; align-items:center; gap:6px; flex-wrap:wrap; width:100%;">
+          <span class="badge-lancet" style="font-size:0.72rem; padding:3px 10px; white-space:nowrap; word-break:keep-all; flex-shrink:0;" contenteditable="true">《${data.journal || 'Lancet'}》重磅</span>
+          <span class="badge-jcog" style="font-size:0.72rem; padding:3px 10px; white-space:nowrap; word-break:keep-all; flex-shrink:0;" contenteditable="true">${data.id || "前沿临床研究"}</span>
         </div>
 
         <h2 class="card-cover-title" contenteditable="true">
