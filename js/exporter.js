@@ -264,29 +264,75 @@ const Exporter = {
 
   /**
    * Modern High-Fidelity DOM-to-Blob Renderer
-   * Prioritizes html-to-image (SVG foreignObject native browser engine) for 100% WYSIWYG layout fidelity,
-   * with seamless fallback to html2canvas.
+   * Renders in an off-screen fixed 420px master staging container to guarantee
+   * 100% consistent desktop typography, badges, and spacing on both PC and Mobile/WebApp.
    */
   async renderCardToBlob(element) {
     const isLight = element.classList.contains("theme-light");
     const isEmerald = element.classList.contains("theme-emerald");
     const bgColor = isLight ? "#FAF7EE" : isEmerald ? "#031911" : "#0A0F1D";
 
-    if (typeof htmlToImage !== "undefined") {
-      try {
-        return await htmlToImage.toBlob(element, {
-          pixelRatio: 3, // 3x Ultra-HD 4K sharpness
-          backgroundColor: bgColor,
-          cacheBust: true
-        });
-      } catch (e) {
-        console.warn("htmlToImage.toBlob failed, falling back to html2canvas:", e);
-      }
+    // 1. Create a fixed 420px master staging container
+    const staging = document.createElement("div");
+    staging.style.position = "fixed";
+    staging.style.top = "-9999px";
+    staging.style.left = "-9999px";
+    staging.style.width = "420px";
+    staging.style.opacity = "0";
+    staging.style.pointerEvents = "none";
+    staging.style.zIndex = "-1000";
+
+    const clone = element.cloneNode(true);
+    clone.style.width = "420px";
+    clone.style.minWidth = "420px";
+    clone.style.maxWidth = "420px";
+    clone.style.margin = "0";
+    clone.style.transform = "none";
+
+    // Replicate KM Chart Canvas if present
+    const origCanvas = element.querySelector("canvas");
+    const cloneCanvas = clone.querySelector("canvas");
+    if (origCanvas && cloneCanvas) {
+      cloneCanvas.width = origCanvas.width;
+      cloneCanvas.height = origCanvas.height;
+      const ctx = cloneCanvas.getContext("2d");
+      ctx.drawImage(origCanvas, 0, 0);
     }
 
-    // Fallback: html2canvas
-    const canvas = await this.renderCardToCanvas(element);
-    return await new Promise(resolve => canvas.toBlob(resolve, "image/png", 1.0));
+    staging.appendChild(clone);
+    document.body.appendChild(staging);
+
+    try {
+      if (typeof htmlToImage !== "undefined") {
+        try {
+          const blob = await htmlToImage.toBlob(clone, {
+            pixelRatio: 3, // 3x Ultra-HD: 420 * 3 = 1260px width
+            backgroundColor: bgColor,
+            cacheBust: true,
+            width: 420
+          });
+          if (blob) return blob;
+        } catch (e) {
+          console.warn("htmlToImage on clone failed, falling back to html2canvas:", e);
+        }
+      }
+
+      // Fallback: html2canvas
+      if (typeof html2canvas !== "undefined") {
+        const canvas = await html2canvas(clone, {
+          scale: 3,
+          backgroundColor: bgColor,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          width: 420
+        });
+        return await new Promise(resolve => canvas.toBlob(resolve, "image/png", 1.0));
+      }
+      throw new Error("无可用渲染引擎");
+    } finally {
+      document.body.removeChild(staging);
+    }
   },
 
   /**
@@ -297,53 +343,74 @@ const Exporter = {
     const isEmerald = element.classList.contains("theme-emerald");
     const bgColor = isLight ? "#FAF7EE" : isEmerald ? "#031911" : "#0A0F1D";
 
-    if (typeof htmlToImage !== "undefined") {
-      try {
-        const dataUrl = await htmlToImage.toPng(element, {
-          pixelRatio: 3,
-          backgroundColor: bgColor,
-          cacheBust: true
-        });
-        const img = new Image();
-        img.src = dataUrl;
-        await new Promise((res, rej) => {
-          img.onload = res;
-          img.onerror = rej;
-        });
-        const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0);
-        return canvas;
-      } catch (e) {
-        console.warn("htmlToImage to Canvas fallback:", e);
-      }
+    const staging = document.createElement("div");
+    staging.style.position = "fixed";
+    staging.style.top = "-9999px";
+    staging.style.left = "-9999px";
+    staging.style.width = "420px";
+    staging.style.opacity = "0";
+    staging.style.pointerEvents = "none";
+    staging.style.zIndex = "-1000";
+
+    const clone = element.cloneNode(true);
+    clone.style.width = "420px";
+    clone.style.minWidth = "420px";
+    clone.style.maxWidth = "420px";
+    clone.style.margin = "0";
+    clone.style.transform = "none";
+
+    const origCanvas = element.querySelector("canvas");
+    const cloneCanvas = clone.querySelector("canvas");
+    if (origCanvas && cloneCanvas) {
+      cloneCanvas.width = origCanvas.width;
+      cloneCanvas.height = origCanvas.height;
+      const ctx = cloneCanvas.getContext("2d");
+      ctx.drawImage(origCanvas, 0, 0);
     }
 
-    const rect = element.getBoundingClientRect();
-    const width = Math.round(rect.width);
-    const height = Math.round(rect.height);
+    staging.appendChild(clone);
+    document.body.appendChild(staging);
 
-    return await html2canvas(element, {
-      scale: 3.5,
-      backgroundColor: bgColor,
-      useCORS: true,
-      allowTaint: true,
-      logging: false,
-      width: width,
-      height: height,
-      onclone: (clonedDoc) => {
-        const target = clonedDoc.getElementById(element.id) || clonedDoc.querySelector(`[data-card-index="${element.dataset.cardIndex}"]`);
-        if (target) {
-          target.style.transform = "none";
-          target.style.margin = "0";
-          target.style.width = `${width}px`;
-          target.style.height = `${height}px`;
-          target.style.boxSizing = "border-box";
+    try {
+      if (typeof htmlToImage !== "undefined") {
+        try {
+          const dataUrl = await htmlToImage.toPng(clone, {
+            pixelRatio: 3,
+            backgroundColor: bgColor,
+            cacheBust: true,
+            width: 420
+          });
+          const img = new Image();
+          img.src = dataUrl;
+          await new Promise((res, rej) => {
+            img.onload = res;
+            img.onerror = rej;
+          });
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+          return canvas;
+        } catch (e) {
+          console.warn("htmlToImage to Canvas fallback:", e);
         }
       }
-    });
+
+      if (typeof html2canvas !== "undefined") {
+        return await html2canvas(clone, {
+          scale: 3,
+          backgroundColor: bgColor,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          width: 420
+        });
+      }
+      throw new Error("无可用渲染引擎");
+    } finally {
+      document.body.removeChild(staging);
+    }
   },
 
   /**

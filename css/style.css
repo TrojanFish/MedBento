@@ -875,19 +875,35 @@ body {
 }
 
 /* Specific Badges for Medical Journals & Trials */
+.card-cover-badges {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+.badge-lancet,
+.badge-jcog {
+  font-size: 0.74rem;
+  padding: 3px 10px;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1.2;
+  border-radius: 20px;
+  font-weight: 800;
+}
+
 .badge-lancet {
   background: rgba(244, 63, 94, 0.18);
   border: 1px solid rgba(244, 63, 94, 0.45);
   color: #FB7185;
-  border-radius: 20px;
-  font-weight: 800;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-  word-break: keep-all;
-  flex-shrink: 0;
-  line-height: 1.2;
 }
 .social-card-item.theme-light .badge-lancet {
   background: rgba(185, 28, 28, 0.12);
@@ -904,20 +920,16 @@ body {
   background: rgba(0, 229, 255, 0.15);
   border: 1px solid rgba(0, 229, 255, 0.45);
   color: #00E5FF;
-  border-radius: 20px;
-  font-weight: 800;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-  word-break: keep-all;
-  flex-shrink: 0;
-  line-height: 1.2;
 }
 .social-card-item.theme-light .badge-jcog {
   background: rgba(3, 105, 161, 0.12);
   border-color: rgba(3, 105, 161, 0.4);
   color: #0369A1;
+}
+.social-card-item.theme-emerald .badge-jcog {
+  background: rgba(52, 211, 153, 0.15);
+  border-color: rgba(52, 211, 153, 0.4);
+  color: #34D399;
 }
 .social-card-item.theme-emerald .badge-jcog {
   background: rgba(52, 211, 153, 0.15);

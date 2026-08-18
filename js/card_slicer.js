@@ -264,6 +264,23 @@ const CardSlicer = {
   },
 
   /**
+   * Smart Cover Journal Badge Formatter
+   */
+  getCoverJournalBadge(data) {
+    let j = (data.journal || "Lancet").trim();
+    if (j.includes("Lancet")) return "《Lancet 柳叶刀》重磅";
+    if (j.includes("New England") || j.includes("NEJM")) return "《NEJM》顶刊重磅";
+    if (j.includes("Journal of Clinical Oncology") || j.includes("JCO")) return "《JCO》顶刊重磅";
+    if (j.includes("Thoracic Oncology") || j.includes("JTO")) return "《JTO》胸部肿瘤重磅";
+    if (j.includes("Nature")) return "《Nature》顶级重磅";
+    if (j.includes("Cell")) return "《Cell》顶刊重磅";
+    if (j.length > 12) {
+      j = this.getShortJournalName(j);
+    }
+    return `《${j}》重磅`;
+  },
+
+  /**
    * Card 1: 爆款封面大字卡
    */
   generateCard1Cover(data, stepIndex = 1, total = 5) {
@@ -276,9 +293,9 @@ const CardSlicer = {
     return `
       ${this.getHeader(stepIndex, total)}
       <div class="card-content-body" style="text-align: center;">
-        <div style="display:flex; justify-content:center; align-items:center; gap:6px; flex-wrap:wrap; width:100%;">
-          <span class="badge-lancet" style="font-size:0.72rem; padding:3px 10px; white-space:nowrap; word-break:keep-all; flex-shrink:0;" contenteditable="true">《${data.journal || 'Lancet'}》重磅</span>
-          <span class="badge-jcog" style="font-size:0.72rem; padding:3px 10px; white-space:nowrap; word-break:keep-all; flex-shrink:0;" contenteditable="true">${data.id || "前沿临床研究"}</span>
+        <div class="card-cover-badges">
+          <span class="badge-lancet" contenteditable="true">${this.getCoverJournalBadge(data)}</span>
+          <span class="badge-jcog" contenteditable="true">${data.id || "前沿临床研究"}</span>
         </div>
 
         <h2 class="card-cover-title" contenteditable="true">
