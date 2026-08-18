@@ -26,20 +26,20 @@
 请对输入的医学研究报告（PDF或文本）进行深度多模态临床解析，执行以下推导并生成具备 Apple 科技质感与医学顶刊学术风范的 HTML 交互式 Bento Grid 网页及自媒体切片：
 
 ### 1. 临床干预范式自动研判 (Intervention Classifier)
-自动识别文献干预类型：
-- A. 微创外科手术 (Surgical: 肺段/肺叶/楔形切除、切缘距离、FEV1 肺功能、局部复发)
-- B. 分子靶向辅助 (Targeted: EGFR/ALK/KRAS 靶向药辅助治疗、3~5年 DFS、CNS-DFS 脑转移、靶向毒性)
+自动识别输入文献属于以下哪种类型：
+- A. 微创外科手术 (Surgical: 肺段/肺叶/楔形切除、切缘距离、FEV1 肺功能、局部复发、非癌死亡)
+- B. 分子靶向辅助 (Targeted: EGFR/ALK/KRAS 靶向药辅助/新辅助治疗、3~5年 DFS、CNS-DFS 脑转移、靶向耐药与毒性)
 - C. 围术期免疫新辅助 (Immunotherapy: PD-1/PD-L1 免疫单抗联合化疗、pCR 24%、MPR、EFS、irAE 毒性)
 - D. 局晚期综合放化免 (Chemoradiation: PACIFIC 放化免巩固模式、mPFS、5年 OS)
 
-### 2. 生物统计学与反幻觉严谨提取 (Biostatistical Integrity)
-- 提取主要终点 (OS / DFS / EFS / pCR) 与数值；
-- 提取风险比 HR 与 95% CI，并执行数学恒等校验：Risk Reduction = (1 - HR) * 100%；
-- 提取阶梯状 Kaplan-Meier 生存曲线点位（0~5/7年），确保曲线严格单调不增；
-- 提取关键亚组森林图（老年、病理分型、基因突变、吸烟史）。
+### 2. 生物统计学与四大反幻觉自检法则 (Biostatistical Guardrails)
+- 法则一（风险降低恒等式）: 提取 HR 与 95% CI，数学严格自洽 Risk Reduction = (1 - HR) * 100%；
+- 法则二（显著性逻辑自洽）: 若 P < 0.05，则 95% CI 必须完全不跨越 1.00；
+- 法则三（生存曲线单调性原理）: Kaplan-Meier 生存曲线点位（0~5/7年）严格单调不增，杜绝反弹幻觉；
+- 法则四（样本量守恒定律）: 试验组例数 + 对照组例数 = 总样本量 N。
 
 ### 3. 视觉设计与配色系统 (Medical Tech Bento Grid)
-- 背景底色：采用深邃沉稳的暗夜深蓝/生命深空黑（#0A0F1D / #0F172A）；
+- 背景底色：深邃沉稳的暗夜深蓝/生命深空黑（#0A0F1D / #0F172A）；
 - 核心高亮色：医疗科技冷光青（#00E5FF）+ 生命翡翠绿（#10B981）+ 预警珊瑚红（#F43F5E）；
 - 材质质感：微光渐变（Glow）+ Apple 风格磨砂玻璃拟态（Backdrop-blur 12px + 1px 半透明边框）。
 
@@ -49,7 +49,12 @@
 - 【Card 3: KM 生存曲线与硬核数据】：高精度阶梯状 KM 曲线 + HR + P 值 + 风险直降解读；
 - 【Card 4: 获益权衡与专家共识】：器官功能/病理缓解 vs 风险管理深度剖析；
 - 【Card 5: 患者科普总结与就诊建议】：早筛早治 + 个体化方案 + 严守复查 + 标准免责声明；
-- 【Card 6-8: 进阶扩展】：CTCAE 安全性谱、亚组森林图、NCCN/CSCO 1A 类指南路径。
+- 【Card 6: CTCAE v5.0 安全性谱】：3级以上严重不良反应、手术漏气/房颤、30天死亡率；
+- 【Card 7: 关键亚组获益森林图】：老年、病理分型、基因突变、吸烟史预设亚组 HR；
+- 【Card 8: 权威指南与诊疗全路径】：NCCN/CSCO 1A 类推荐 + 术前评估/实施/康复/随访 4 步路径。
+
+### 5. 统一输出 JSON Schema 数据契约
+请输出包含 studyMeta, keyMetrics, kmData, comparisonTable, safetyProfile, subgroupAnalysis, guidelineImpact, patientTakeaways, socialMediaCopy 的标准结构化 JSON。
 ```
 
 ---
