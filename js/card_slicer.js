@@ -13,6 +13,49 @@ const CardSlicer = {
   currentTheme: "theme-dark",
   currentDeckMode: "auto", // "auto", "5", "7", "8"
   currentAuthor: "Dr. 肿瘤前沿速递",
+  currentBrand: "Oncopath AI",
+
+  /**
+   * Set Custom Brand Name across all cards
+   */
+  setBrand(brandName) {
+    this.currentBrand = (brandName || "Oncopath AI").trim();
+    const brandSpans = document.querySelectorAll(".card-brand-text");
+    brandSpans.forEach(span => {
+      span.innerText = `${this.currentBrand} · 临床洞察`;
+    });
+    const input = document.getElementById("brand-input");
+    if (input && input.value !== this.currentBrand) {
+      input.value = this.currentBrand;
+    }
+  },
+
+  syncBrandFromCard(text) {
+    if (!text) return;
+    const cleanBrand = text.replace(/·.*$/, "").trim();
+    if (cleanBrand) {
+      this.currentBrand = cleanBrand;
+      const input = document.getElementById("brand-input");
+      if (input) input.value = cleanBrand;
+      // Sync across all other cards
+      document.querySelectorAll(".card-brand-text").forEach(span => {
+        span.innerText = `${cleanBrand} · 临床洞察`;
+      });
+    }
+  },
+
+  syncAuthorFromCard(text) {
+    if (!text) return;
+    const cleanAuthor = text.replace(/^@/, "").trim();
+    if (cleanAuthor) {
+      this.currentAuthor = cleanAuthor;
+      const input = document.getElementById("watermark-input");
+      if (input) input.value = cleanAuthor;
+      document.querySelectorAll(".card-author").forEach(span => {
+        span.innerHTML = `${this.svgIcon("feather", "color:var(--card-accent); margin-right:3px")}@${cleanAuthor}`;
+      });
+    }
+  },
 
   /**
    * Native SVG Vector Icon Provider
@@ -235,14 +278,15 @@ const CardSlicer = {
    */
   getHeader(stepIndex, total = 5) {
     const author = this.currentAuthor || "Dr. 肿瘤前沿速递";
+    const brand = this.currentBrand || "Oncopath AI";
     return `
       <div class="card-header-bar">
         <div class="brand-badge">
           ${this.svgIcon("dna", "color:var(--card-accent)")}
-          <span>MedBento AI · 临床洞察</span>
+          <span class="card-brand-text" contenteditable="true" title="点击可直接修改品牌名称" onblur="CardSlicer.syncBrandFromCard(this.innerText)">${brand} · 临床洞察</span>
         </div>
         <div class="card-header-right">
-          <span class="card-author" contenteditable="true" title="点击可直接修改署名">
+          <span class="card-author" contenteditable="true" title="点击可直接修改署名" onblur="CardSlicer.syncAuthorFromCard(this.innerText)">
             ${this.svgIcon("feather", "color:var(--card-accent); margin-right:3px")}@${author}
           </span>
           <div class="card-step-pill">${stepIndex} / ${total}</div>

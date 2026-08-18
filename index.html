@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <!-- Custom Style -->
-  <link rel="stylesheet" href="css/style.css?v=1.0.8">
+  <link rel="stylesheet" href="css/style.css?v=1.0.9">
 
   <!-- Marked.js for Markdown & Table Rendering -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
@@ -51,18 +51,18 @@
         </div>
         <div>
           <h1 class="brand-title">MedBento AI</h1>
-          <div class="brand-tag">医学研究报告 Bento 动态可视化 & 自媒体（小红书/抖音）智能切片系统</div>
+          <div class="brand-tag">医学研究 Bento 可视化 & 自媒体智能切片</div>
         </div>
       </div>
       <div class="header-actions">
-        <button id="btn-pwa-install" class="btn btn-secondary btn-sm" style="display:none; color:#00E5FF; border-color:rgba(0,229,255,0.4);" title="安装 MedBento 为桌面/手机 App 应用">
+        <button id="btn-pwa-install" class="btn btn-secondary btn-sm" style="display:none; color:#00E5FF; border-color:rgba(0,229,255,0.4);" title="安装为桌面/手机 App 应用">
           <i class="fa-solid fa-download"></i> 安装 App
         </button>
         <button id="btn-show-prompt" class="btn btn-secondary btn-sm">
-          <i class="fa-solid fa-wand-magic-sparkles" style="color: #00E5FF;"></i> 优化提示词
+          <i class="fa-solid fa-wand-magic-sparkles" style="color: #00E5FF;"></i> 提示词库
         </button>
         <a href="output/JCOG0802_Lancet_Study_Report.pdf" target="_blank" class="btn btn-secondary btn-sm">
-          <i class="fa-solid fa-file-pdf" style="color: #F43F5E;"></i> JCOG 报告 PDF
+          <i class="fa-solid fa-file-pdf" style="color: #F43F5E;"></i> 示例 PDF
         </a>
         <button id="btn-logout" class="btn btn-secondary btn-sm" style="color:#CBD5E1;" title="退出登录">
           <i class="fa-solid fa-arrow-right-from-bracket" style="color:#F43F5E;"></i> 退出
@@ -78,11 +78,11 @@
           <div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
               <span style="font-size:0.9rem; font-weight:700; color:#FFFFFF;">
-                <i class="fa-solid fa-file-arrow-up" style="color:#00E5FF; margin-right:6px;"></i>导入医学文献素材
+                <i class="fa-solid fa-file-arrow-up" style="color:#00E5FF; margin-right:6px;"></i>文献导入
               </span>
               <div style="display:flex; gap:6px;">
-                <button id="tab-input-file" class="ratio-btn active" style="padding:2px 8px; font-size:0.75rem;">📁 文件导入</button>
-                <button id="tab-input-url" class="ratio-btn" style="padding:2px 8px; font-size:0.75rem;">🌐 网页链接抓取</button>
+                <button id="tab-input-file" class="ratio-btn active" style="padding:2px 8px; font-size:0.75rem;">本地文件</button>
+                <button id="tab-input-url" class="ratio-btn" style="padding:2px 8px; font-size:0.75rem;">网页链接</button>
               </div>
             </div>
 
@@ -93,8 +93,8 @@
                 <div class="dropzone-icon">
                   <i class="fa-solid fa-cloud-arrow-up"></i>
                 </div>
-                <div class="dropzone-text">拖拽或点击上传文件 (PDF / Word / MD / TXT / HTML)</div>
-                <div class="dropzone-hint">支持 PDF、Word (.docx)、Markdown、文本、HTML 及 JSON</div>
+                <div class="dropzone-text">点击或拖拽上传文献 (PDF / Word / TXT / Markdown)</div>
+                <div class="dropzone-hint">支持 PDF、Word (.docx)、Markdown、TXT 及 HTML</div>
                 <div id="file-info-badge" class="file-info-badge">
                   <span><i class="fa-solid fa-file-circle-check"></i> <span id="file-name-text">已加载文件</span></span>
                   <span style="font-size:0.75rem; opacity:0.8;">解析成功</span>
@@ -119,9 +119,9 @@
             </div>
 
             <div class="preset-pills">
-              <span style="font-size:0.75rem; color:#94A3B8; display:flex; align-items:center;">快捷预置演示:</span>
+              <span style="font-size:0.75rem; color:#94A3B8; display:flex; align-items:center;">快捷预置:</span>
               <button id="btn-preset-jcog" class="preset-pill" data-preset="jcog0802">
-                <i class="fa-solid fa-play" style="color:#00E5FF; margin-right:4px;"></i>点击开启 JCOG0802 柳叶刀研究演示 (N=1106)
+                <i class="fa-solid fa-play" style="color:#00E5FF; margin-right:4px;"></i>JCOG0802 柳叶刀研究演示 (N=1106)
               </button>
             </div>
           </div>
@@ -132,9 +132,9 @@
               <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                 <div style="display:flex; align-items:center; gap:8px;">
                   <span style="font-size:0.9rem; font-weight:700; color:#FFFFFF; display:flex; align-items:center; gap:6px;">
-                    <i class="fa-solid fa-file-lines" style="color:#10B981;"></i> 报告文本提取与微调
+                    <i class="fa-solid fa-file-lines" style="color:#10B981;"></i> 报告文本微调
                     <span class="badge" style="background:rgba(0,229,255,0.12); color:#00E5FF; font-size:0.68rem; padding:2px 6px; border:1px solid rgba(0,229,255,0.25);">
-                      <i class="fa-brands fa-markdown"></i> Markdown & 表格
+                      <i class="fa-brands fa-markdown"></i> Markdown
                     </span>
                   </span>
                   <span id="text-char-count" class="char-count-badge">0 字符</span>
@@ -142,16 +142,16 @@
                 
                 <div class="md-mode-switch">
                   <button id="btn-mode-raw" class="md-tab-btn active" title="纯文本 / Markdown 源码编辑">
-                    <i class="fa-solid fa-code"></i> 源码编辑
+                    <i class="fa-solid fa-code"></i> 源码
                   </button>
                   <button id="btn-mode-preview" class="md-tab-btn" title="查看 Markdown 与表格排版渲染">
-                    <i class="fa-solid fa-table"></i> 表格/排版渲染
+                    <i class="fa-solid fa-table"></i> 预览
                   </button>
                   <button id="btn-insert-table" class="md-tab-btn" title="快速插入标准 Markdown 对照数据表模板">
-                    <i class="fa-solid fa-plus"></i> 插入表格
+                    <i class="fa-solid fa-plus"></i> + 表格
                   </button>
                   <button id="btn-toggle-expand" class="md-tab-btn" title="切换全屏/宽幅沉浸微调模式">
-                    <i class="fa-solid fa-expand"></i> 放大视图
+                    <i class="fa-solid fa-expand"></i> 全屏
                   </button>
                 </div>
               </div>
@@ -165,12 +165,12 @@
 
             <div style="display:flex; gap:12px; margin-top:12px;">
               <select id="style-select" class="select-custom" style="flex:1;">
-                <option value="social_viral">🔥 自媒体爆款风 (小红书/抖音高吸引力)</option>
-                <option value="academic_clinical">🔬 严谨临床学术风 (医生同行/专家汇报)</option>
-                <option value="patient_guide">🩺 患者科普就医指南风 (医患沟通/释疑)</option>
+                <option value="social_viral">🔥 自媒体爆款风 (小红书/抖音)</option>
+                <option value="academic_clinical">🔬 严谨临床学术风 (同行/汇报)</option>
+                <option value="patient_guide">🩺 患者科普指南风 (医患沟通)</option>
               </select>
               <button id="btn-generate" class="btn btn-primary" style="flex:1; justify-content:center;">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> 一键生成 Bento 仪表盘 & 切片
+                <i class="fa-solid fa-wand-magic-sparkles"></i> 智能解析生成
               </button>
             </div>
           </div>
@@ -207,10 +207,10 @@
     <nav class="view-nav">
       <div class="nav-tabs">
         <button class="nav-tab active" data-view="bento">
-          <i class="fa-solid fa-table-cells-large"></i> 桌面 Bento Grid 仪表盘视图
+          <i class="fa-solid fa-table-cells-large"></i> Bento 仪表盘
         </button>
         <button class="nav-tab" data-view="social">
-          <i class="fa-solid fa-mobile-screen-button"></i> 自媒体卡片切片与导出视图 (小红书 / 抖音)
+          <i class="fa-solid fa-mobile-screen-button"></i> 自媒体切片
         </button>
       </div>
       <div id="study-status-indicator" style="font-size:0.8rem; color:#94A3B8; display:flex; align-items:center; gap:8px;">
@@ -431,17 +431,23 @@
               <i class="fa-solid fa-layer-group" style="color:#00E5FF; margin-right:4px;"></i>篇幅:
             </span>
             <div id="deck-count-group" class="ratio-selector">
-              <button class="ratio-btn active" data-deck-mode="auto" title="根据文献信息丰富度自动匹配 5~8 张">⚡ 智能自适应 (5~8张)</button>
-              <button class="ratio-btn" data-deck-mode="5" title="5张黄金叙事闭环">5张 · 爆款精炼</button>
-              <button class="ratio-btn" data-deck-mode="7" title="含安全性与亚组分析">7张 · 深度临床</button>
-              <button class="ratio-btn" data-deck-mode="8" title="全量包含指南共识与全流程路径">8张 · 全景全案</button>
+              <button class="ratio-btn active" data-deck-mode="auto" title="根据文献信息丰富度自动匹配 5~8 张">⚡ 智能自适应</button>
+              <button class="ratio-btn" data-deck-mode="5" title="5张黄金叙事闭环">5张 · 爆款</button>
+              <button class="ratio-btn" data-deck-mode="7" title="含安全性与亚组分析">7张 · 深度</button>
+              <button class="ratio-btn" data-deck-mode="8" title="全量包含指南共识与全流程路径">8张 · 全案</button>
             </div>
           </div>
 
+          <!-- Brand Customization -->
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="font-size:0.8rem; color:#94A3B8;">品牌:</span>
+            <input type="text" id="brand-input" class="watermark-input" style="max-width:115px;" value="Oncopath AI" placeholder="自定义品牌...">
+          </div>
+
           <!-- Author Watermark -->
-          <div style="display:flex; align-items:center; gap:8px;">
+          <div style="display:flex; align-items:center; gap:6px;">
             <span style="font-size:0.8rem; color:#94A3B8;">署名:</span>
-            <input type="text" id="watermark-input" class="watermark-input" value="Dr. 肿瘤前沿速递" placeholder="自定义卡片署名...">
+            <input type="text" id="watermark-input" class="watermark-input" style="max-width:135px;" value="Dr. 肿瘤前沿速递" placeholder="自定义署名...">
           </div>
         </div>
 
@@ -450,13 +456,13 @@
             <i class="fa-solid fa-pen-nib" style="color:#00E5FF;"></i> 文案工作台
           </button>
           <button id="btn-copy-social" class="btn btn-secondary btn-sm">
-            <i class="fa-solid fa-copy" style="color:#10B981;"></i> 快速复制发布文案
+            <i class="fa-solid fa-copy" style="color:#10B981;"></i> 复制发布文案
           </button>
           <button id="btn-export-long" class="btn btn-secondary btn-sm">
-            <i class="fa-solid fa-scroll" style="color:#F59E0B;"></i> 下载完整长图 (PNG)
+            <i class="fa-solid fa-scroll" style="color:#F59E0B;"></i> 导出长图 (PNG)
           </button>
           <button id="btn-export-zip" class="btn btn-primary btn-sm">
-            <i class="fa-solid fa-file-zipper"></i> 一键打包全部切片 (ZIP)
+            <i class="fa-solid fa-file-zipper"></i> 打包下载 (ZIP)
           </button>
         </div>
       </div>
@@ -466,12 +472,12 @@
         <div class="standby-icon">
           <i class="fa-solid fa-images"></i>
         </div>
-        <h3 style="font-size:1.2rem; font-weight:800; color:#FFFFFF; margin-bottom:6px;">暂无可供切片的自媒体卡片</h3>
+        <h3 style="font-size:1.2rem; font-weight:800; color:#FFFFFF; margin-bottom:6px;">暂无切片卡片</h3>
         <p style="font-size:0.84rem; color:#94A3B8; max-width:500px; margin:0 auto 16px;">
-          请先在上方上传文献或点击【开启 JCOG0802 演示数据】生成 5 张小红书/抖音高清视觉卡片。
+          请先在上方上传文献或点击【载入演示数据】生成小红书/抖音高清视觉切片。
         </p>
         <button class="btn btn-primary btn-sm" onclick="document.getElementById('btn-preset-jcog').click()">
-          <i class="fa-solid fa-play"></i> 开启 JCOG0802 演示并生成切片
+          <i class="fa-solid fa-play"></i> 载入演示数据
         </button>
       </div>
 
@@ -484,7 +490,7 @@
     <!-- Disclaimer Banner -->
     <footer class="disclaimer-banner">
       <i class="fa-solid fa-shield-halved" style="color:#00E5FF; margin-right:6px;"></i>
-      <b>医学免责与学术声明：</b>本系统内容基于《The Lancet》（DOI: 10.1016/S0140-6736(21)02333-3）与 JCOG 官方公开临床数据编译与可视化呈现，仅供学术科研交流与健康科普参考，不构成任何临床诊疗方案推荐。具体手术适应症与治疗决策请严格遵从专业三甲医院胸外科及肿瘤科执业医师意见。
+      <b>医学免责与学术声明：</b>本系统内容基于权威同行评审期刊与官方公开临床数据呈现，仅供学术科研交流与健康科普参考，不构成任何临床诊疗方案推荐。具体适应症与诊疗决策请严格遵从执业医师指导。
     </footer>
   </div>
 
@@ -494,7 +500,7 @@
       <div class="modal-header">
         <h3 class="modal-title">
           <i class="fa-solid fa-pen-nib" style="color:#00E5FF; margin-right:8px;"></i>
-          自媒体发布文案工作台 (小红书 / 抖音)
+          自媒体文案工作台 (小红书 / 抖音)
         </h3>
         <button id="btn-close-copywriter-modal" class="modal-close">&times;</button>
       </div>
@@ -506,7 +512,7 @@
       <div style="display:flex; flex-direction:column; gap:12px;">
         <div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-            <label style="font-size:0.82rem; color:#CBD5E1; font-weight:700;">爆款标题 (Hook Title):</label>
+            <label style="font-size:0.82rem; color:#CBD5E1; font-weight:700;">爆款标题 (Hook):</label>
             <span id="title-char-count" style="font-size:0.72rem; color:#64748B;">32 字</span>
           </div>
           <input type="text" id="cw-title-input" class="textarea-custom" style="height:42px; margin-top:0; font-weight:700; color:#00E5FF;">
@@ -514,7 +520,7 @@
 
         <div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-            <label style="font-size:0.82rem; color:#CBD5E1; font-weight:700;">小红书正文 (带 Emoji 排版 & 数据拆解):</label>
+            <label style="font-size:0.82rem; color:#CBD5E1; font-weight:700;">小红书正文 (Emoji 排版):</label>
             <span id="body-char-count" style="font-size:0.72rem; color:#64748B;">字数统计</span>
           </div>
           <textarea id="cw-body-textarea" class="textarea-custom" style="height:170px; margin-top:0; line-height:1.6;"></textarea>
@@ -529,7 +535,7 @@
       <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
         <span style="font-size:0.75rem; color:#64748B;"><i class="fa-solid fa-circle-check" style="color:#10B981;"></i> 符合小红书 1000 字与热门排版规范</span>
         <button id="btn-cw-copy-all" class="btn btn-primary btn-sm">
-          <i class="fa-solid fa-copy"></i> 一键复制整篇文案
+          <i class="fa-solid fa-copy"></i> 复制全部文案
         </button>
       </div>
     </div>
@@ -616,10 +622,10 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- App Scripts -->
-  <script src="js/pdf_extractor.js?v=1.0.8"></script>
-  <script src="js/medical_analyzer.js?v=1.0.8"></script>
-  <script src="js/card_slicer.js?v=1.0.8"></script>
-  <script src="js/exporter.js?v=1.0.8"></script>
-  <script src="js/app.js?v=1.0.8"></script>
+  <script src="js/pdf_extractor.js?v=1.0.9"></script>
+  <script src="js/medical_analyzer.js?v=1.0.9"></script>
+  <script src="js/card_slicer.js?v=1.0.9"></script>
+  <script src="js/exporter.js?v=1.0.9"></script>
+  <script src="js/app.js?v=1.0.9"></script>
 </body>
 </html>

@@ -52,9 +52,16 @@ const App = {
       textarea.value = "";
     }
 
+    const brandInput = document.getElementById("brand-input");
+    if (brandInput) {
+      this.currentBrand = brandInput.value.trim() || "Oncopath AI";
+      CardSlicer.currentBrand = this.currentBrand;
+    }
+
     const watermarkInput = document.getElementById("watermark-input");
     if (watermarkInput) {
       this.currentAuthor = watermarkInput.value.trim() || "Dr. 肿瘤前沿速递";
+      CardSlicer.currentAuthor = this.currentAuthor;
     }
 
     this.bindEvents();
@@ -266,11 +273,11 @@ const App = {
       btnToggleExpand.addEventListener("click", () => {
         const isFullscreen = controlSection.classList.toggle("fullscreen-editor-mode");
         if (isFullscreen) {
-          btnToggleExpand.innerHTML = `<i class="fa-solid fa-compress"></i> 还原视图`;
+          btnToggleExpand.innerHTML = `<i class="fa-solid fa-compress"></i> 还原`;
           btnToggleExpand.classList.add("active");
           this.showToast("已开启宽屏沉浸微调模式，按 Esc 或点击还原退出", "info");
         } else {
-          btnToggleExpand.innerHTML = `<i class="fa-solid fa-expand"></i> 放大视图`;
+          btnToggleExpand.innerHTML = `<i class="fa-solid fa-expand"></i> 全屏`;
           btnToggleExpand.classList.remove("active");
         }
       });
@@ -278,7 +285,7 @@ const App = {
       window.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && controlSection.classList.contains("fullscreen-editor-mode")) {
           controlSection.classList.remove("fullscreen-editor-mode");
-          btnToggleExpand.innerHTML = `<i class="fa-solid fa-expand"></i> 放大视图`;
+          btnToggleExpand.innerHTML = `<i class="fa-solid fa-expand"></i> 全屏`;
           btnToggleExpand.classList.remove("active");
         }
       });
@@ -475,7 +482,7 @@ const App = {
           this.showToast(`导出失败: ${err.message}`, "error");
         } finally {
           btnExportZip.disabled = false;
-          btnExportZip.innerHTML = `<i class="fa-solid fa-file-zipper"></i> 一键打包全部切片 (ZIP)`;
+          btnExportZip.innerHTML = `<i class="fa-solid fa-file-zipper"></i> 打包下载 (ZIP)`;
         }
       });
     }
@@ -498,7 +505,7 @@ const App = {
           this.showToast(`长图导出失败: ${err.message}`, "error");
         } finally {
           btnExportLong.disabled = false;
-          btnExportLong.innerHTML = `<i class="fa-solid fa-scroll"></i> 下载完整长图 (PNG)`;
+          btnExportLong.innerHTML = `<i class="fa-solid fa-scroll"></i> 导出长图 (PNG)`;
         }
       });
     }
@@ -531,7 +538,16 @@ const App = {
       });
     }
 
-    // 9. Watermark Real-time Dynamic Sync to Cards
+    // 9. Brand & Watermark Real-time Dynamic Sync to Cards
+    const brandInput = document.getElementById("brand-input");
+    if (brandInput) {
+      brandInput.addEventListener("input", (e) => {
+        const val = e.target.value.trim() || "Oncopath AI";
+        this.currentBrand = val;
+        CardSlicer.setBrand(val);
+      });
+    }
+
     const watermarkInput = document.getElementById("watermark-input");
     if (watermarkInput) {
       watermarkInput.addEventListener("input", (e) => {
@@ -539,7 +555,7 @@ const App = {
         this.currentAuthor = val;
         CardSlicer.currentAuthor = val;
         document.querySelectorAll(".card-author").forEach(el => {
-          el.innerHTML = `<i class="fa-solid fa-feather-pointed" style="color:var(--card-accent); margin-right:3px;"></i>@${val}`;
+          el.innerHTML = `${CardSlicer.svgIcon("feather", "color:var(--card-accent); margin-right:3px")}@${val}`;
         });
       });
     }
