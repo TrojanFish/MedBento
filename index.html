@@ -132,12 +132,15 @@
           <div style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                <span style="font-size:0.9rem; font-weight:700; color:#FFFFFF; display:flex; align-items:center; gap:6px;">
-                  <i class="fa-solid fa-file-lines" style="color:#10B981;"></i> 报告文本提取与微调
-                  <span class="badge" style="background:rgba(0,229,255,0.12); color:#00E5FF; font-size:0.68rem; padding:2px 6px; border:1px solid rgba(0,229,255,0.25);">
-                    <i class="fa-brands fa-markdown"></i> Markdown & 表格
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:0.9rem; font-weight:700; color:#FFFFFF; display:flex; align-items:center; gap:6px;">
+                    <i class="fa-solid fa-file-lines" style="color:#10B981;"></i> 报告文本提取与微调
+                    <span class="badge" style="background:rgba(0,229,255,0.12); color:#00E5FF; font-size:0.68rem; padding:2px 6px; border:1px solid rgba(0,229,255,0.25);">
+                      <i class="fa-brands fa-markdown"></i> Markdown & 表格
+                    </span>
                   </span>
-                </span>
+                  <span id="text-char-count" class="char-count-badge">0 字符</span>
+                </div>
                 
                 <div class="md-mode-switch">
                   <button id="btn-mode-raw" class="md-tab-btn active" title="纯文本 / Markdown 源码编辑">
@@ -148,6 +151,9 @@
                   </button>
                   <button id="btn-insert-table" class="md-tab-btn" title="快速插入标准 Markdown 对照数据表模板">
                     <i class="fa-solid fa-plus"></i> 插入表格
+                  </button>
+                  <button id="btn-toggle-expand" class="md-tab-btn" title="切换全屏/宽幅沉浸微调模式">
+                    <i class="fa-solid fa-expand"></i> 放大视图
                   </button>
                 </div>
               </div>

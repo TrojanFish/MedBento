@@ -233,6 +233,8 @@ const App = {
     const btnInsertTable = document.getElementById("btn-insert-table");
     const textarea = document.getElementById("report-textarea");
     const preview = document.getElementById("report-md-preview");
+    const btnToggleExpand = document.getElementById("btn-toggle-expand");
+    const controlSection = document.querySelector(".control-section");
 
     if (btnModeRaw && btnModePreview && textarea && preview) {
       btnModeRaw.addEventListener("click", () => {
@@ -253,8 +255,31 @@ const App = {
       });
 
       textarea.addEventListener("input", () => {
+        this.updateCharCount();
         if (this.currentEditorMode === "preview") {
           this.updateMarkdownPreview();
+        }
+      });
+    }
+
+    if (btnToggleExpand && controlSection) {
+      btnToggleExpand.addEventListener("click", () => {
+        const isFullscreen = controlSection.classList.toggle("fullscreen-editor-mode");
+        if (isFullscreen) {
+          btnToggleExpand.innerHTML = `<i class="fa-solid fa-compress"></i> 还原视图`;
+          btnToggleExpand.classList.add("active");
+          this.showToast("已开启宽屏沉浸微调模式，按 Esc 或点击还原退出", "info");
+        } else {
+          btnToggleExpand.innerHTML = `<i class="fa-solid fa-expand"></i> 放大视图`;
+          btnToggleExpand.classList.remove("active");
+        }
+      });
+
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && controlSection.classList.contains("fullscreen-editor-mode")) {
+          controlSection.classList.remove("fullscreen-editor-mode");
+          btnToggleExpand.innerHTML = `<i class="fa-solid fa-expand"></i> 放大视图`;
+          btnToggleExpand.classList.remove("active");
         }
       });
     }
@@ -269,6 +294,7 @@ const App = {
         
         textarea.value = textBefore + tableTemplate + textAfter;
         this.updateMarkdownPreview();
+        this.updateCharCount();
         this.showToast("已插入 Markdown 对照数据表模板，可直接修改单元格数据", "success");
       });
     }
@@ -554,10 +580,23 @@ const App = {
     }
   },
 
+  updateCharCount() {
+    const textarea = document.getElementById("report-textarea");
+    const countBadge = document.getElementById("text-char-count");
+    if (!textarea || !countBadge) return;
+
+    const val = textarea.value || "";
+    const charCount = val.length;
+    const lineCount = val ? val.split("\n").length : 0;
+    countBadge.innerText = `${charCount.toLocaleString()} 字符 | ${lineCount} 行`;
+  },
+
   updateMarkdownPreview() {
     const textarea = document.getElementById("report-textarea");
     const preview = document.getElementById("report-md-preview");
     if (!textarea || !preview) return;
+
+    this.updateCharCount();
 
     const raw = textarea.value.trim();
     if (!raw) {
