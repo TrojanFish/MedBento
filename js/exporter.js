@@ -264,15 +264,24 @@ const Exporter = {
 
   /**
    * Modern High-Fidelity DOM-to-Blob Renderer
-   * Renders in an off-screen fixed 420px master staging container to guarantee
-   * 100% consistent desktop typography, badges, and spacing on both PC and Mobile/WebApp.
+   * Converts all live Canvas elements into static high-res <img> elements in the clone,
+   * completely resolving WebKit/Mobile canvas clipping and context loss bugs.
    */
   async renderCardToBlob(element) {
     const isLight = element.classList.contains("theme-light");
     const isEmerald = element.classList.contains("theme-emerald");
     const bgColor = isLight ? "#FAF7EE" : isEmerald ? "#031911" : "#0A0F1D";
 
-    // 1. Create a fixed 420px master staging container
+    // 1. Ensure live canvas (KM curve) is properly initialized
+    const origCanvas = element.querySelector("canvas");
+    if (origCanvas && typeof Chart !== "undefined") {
+      const curData = (typeof App !== "undefined" && App.currentData) || (window.app && window.app.currentData) || MedicalAnalyzer.DEFAULT_JCOG_DATA;
+      if (!Chart.getChart(origCanvas) && typeof CardSlicer !== "undefined" && CardSlicer.initCard3MiniChart) {
+        CardSlicer.initCard3MiniChart(curData);
+      }
+    }
+
+    // 2. Create a fixed 420px master staging container
     const staging = document.createElement("div");
     staging.style.position = "fixed";
     staging.style.top = "-9999px";
@@ -289,15 +298,31 @@ const Exporter = {
     clone.style.margin = "0";
     clone.style.transform = "none";
 
-    // Replicate KM Chart Canvas if present
-    const origCanvas = element.querySelector("canvas");
-    const cloneCanvas = clone.querySelector("canvas");
-    if (origCanvas && cloneCanvas) {
-      cloneCanvas.width = origCanvas.width;
-      cloneCanvas.height = origCanvas.height;
-      const ctx = cloneCanvas.getContext("2d");
-      ctx.drawImage(origCanvas, 0, 0);
-    }
+    // 3. Convert all live canvases into static high-res <img> elements in the clone
+    const origCanvases = element.querySelectorAll("canvas");
+    const cloneCanvases = clone.querySelectorAll("canvas");
+    origCanvases.forEach((origCv, i) => {
+      const cloneCv = cloneCanvases[i];
+      if (origCv && cloneCv) {
+        try {
+          const imgDataUrl = origCv.toDataURL("image/png");
+          if (imgDataUrl && imgDataUrl !== "data:," && imgDataUrl.length > 50) {
+            const img = document.createElement("img");
+            img.src = imgDataUrl;
+            img.style.width = "100%";
+            img.style.height = "100%";
+            img.style.display = "block";
+            img.style.objectFit = "contain";
+            img.className = cloneCv.className || "";
+            if (cloneCv.parentNode) {
+              cloneCv.parentNode.replaceChild(img, cloneCv);
+            }
+          }
+        } catch (e) {
+          console.warn("Canvas to image conversion fallback:", e);
+        }
+      }
+    });
 
     staging.appendChild(clone);
     document.body.appendChild(staging);
@@ -343,6 +368,14 @@ const Exporter = {
     const isEmerald = element.classList.contains("theme-emerald");
     const bgColor = isLight ? "#FAF7EE" : isEmerald ? "#031911" : "#0A0F1D";
 
+    const origCanvas = element.querySelector("canvas");
+    if (origCanvas && typeof Chart !== "undefined") {
+      const curData = (typeof App !== "undefined" && App.currentData) || (window.app && window.app.currentData) || MedicalAnalyzer.DEFAULT_JCOG_DATA;
+      if (!Chart.getChart(origCanvas) && typeof CardSlicer !== "undefined" && CardSlicer.initCard3MiniChart) {
+        CardSlicer.initCard3MiniChart(curData);
+      }
+    }
+
     const staging = document.createElement("div");
     staging.style.position = "fixed";
     staging.style.top = "-9999px";
@@ -359,14 +392,30 @@ const Exporter = {
     clone.style.margin = "0";
     clone.style.transform = "none";
 
-    const origCanvas = element.querySelector("canvas");
-    const cloneCanvas = clone.querySelector("canvas");
-    if (origCanvas && cloneCanvas) {
-      cloneCanvas.width = origCanvas.width;
-      cloneCanvas.height = origCanvas.height;
-      const ctx = cloneCanvas.getContext("2d");
-      ctx.drawImage(origCanvas, 0, 0);
-    }
+    const origCanvases = element.querySelectorAll("canvas");
+    const cloneCanvases = clone.querySelectorAll("canvas");
+    origCanvases.forEach((origCv, i) => {
+      const cloneCv = cloneCanvases[i];
+      if (origCv && cloneCv) {
+        try {
+          const imgDataUrl = origCv.toDataURL("image/png");
+          if (imgDataUrl && imgDataUrl !== "data:," && imgDataUrl.length > 50) {
+            const img = document.createElement("img");
+            img.src = imgDataUrl;
+            img.style.width = "100%";
+            img.style.height = "100%";
+            img.style.display = "block";
+            img.style.objectFit = "contain";
+            img.className = cloneCv.className || "";
+            if (cloneCv.parentNode) {
+              cloneCv.parentNode.replaceChild(img, cloneCv);
+            }
+          }
+        } catch (e) {
+          console.warn("Canvas to image conversion fallback:", e);
+        }
+      }
+    });
 
     staging.appendChild(clone);
     document.body.appendChild(staging);

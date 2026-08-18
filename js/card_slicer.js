@@ -736,6 +736,7 @@ const CardSlicer = {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: false,
         plugins: {
           legend: {
             display: true,
