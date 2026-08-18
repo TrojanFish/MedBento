@@ -3,7 +3,7 @@
  * Provides offline caching, lightning-fast reloads, and background synchronization.
  */
 
-const CACHE_NAME = "medbento-pwa-v1.0.5";
+const CACHE_NAME = "medbento-pwa-v1.0.6";
 const STATIC_ASSETS = [
   "/",
   "/index.html",
