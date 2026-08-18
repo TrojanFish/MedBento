@@ -413,16 +413,21 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
 
         mime_type, _ = mimetypes.guess_type(str(file_path))
         if not mime_type:
-            if file_path.suffix == ".json" or file_path.name == "manifest.json":
-                mime_type = "application/manifest+json"
-            elif file_path.suffix == ".webmanifest":
-                mime_type = "application/manifest+json"
+            if file_path.suffix in (".json", ".webmanifest") or file_path.name == "manifest.json":
+                mime_type = "application/manifest+json; charset=utf-8"
             elif file_path.suffix == ".js":
-                mime_type = "application/javascript"
+                mime_type = "application/javascript; charset=utf-8"
             elif file_path.suffix == ".svg":
                 mime_type = "image/svg+xml"
+            elif file_path.suffix in (".md", ".markdown"):
+                mime_type = "text/markdown; charset=utf-8"
+            elif file_path.suffix in (".txt", ".log"):
+                mime_type = "text/plain; charset=utf-8"
             else:
                 mime_type = "application/octet-stream"
+        elif mime_type.startswith("text/") or mime_type in ("application/javascript", "application/json"):
+            if "charset=" not in mime_type:
+                mime_type = f"{mime_type}; charset=utf-8"
 
         try:
             with open(file_path, "rb") as f:

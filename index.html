@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <!-- Custom Style -->
-  <link rel="stylesheet" href="css/style.css?v=1.1.0">
+  <link rel="stylesheet" href="css/style.css?v=1.1.1">
 
   <!-- Marked.js for Markdown & Table Rendering -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
@@ -567,46 +567,156 @@
 
   <!-- Prompt Templates Modal -->
   <div id="modal-prompt" class="modal-overlay">
-    <div class="modal-card">
+    <div class="modal-card" style="max-width: 820px; max-height: 88vh; display:flex; flex-direction:column;">
       <div class="modal-header">
-        <h3 class="modal-title">
-          <i class="fa-solid fa-wand-magic-sparkles" style="color:#00E5FF; margin-right:8px;"></i>
-          医学研究 Bento Grid 提示词体系 (优化版)
-        </h3>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="brand-logo" style="width:32px; height:32px; font-size:0.9rem;">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color:#00E5FF;"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" style="margin-bottom:0;">
+              医学研究 Bento Grid 提示词体系 (优化版)
+            </h3>
+            <div style="font-size:0.72rem; color:#94A3B8;">原版财报提示词深度重构 · 适配顶级医学期刊与小红书/抖音视觉切片</div>
+          </div>
+        </div>
         <button id="btn-close-modal" class="modal-close">&times;</button>
       </div>
-      
-      <p style="font-size:0.84rem; color:#94A3B8; margin-bottom:16px;">
-        从原版财报提示词（见 <code>prompt.jpg</code>）全面重构，注入 Kaplan-Meier 生存分析、HR 风险比、肺功能多维对比与自媒体（小红书/抖音）切片标准。
-      </p>
 
-      <div style="display:flex; flex-direction:column; gap:14px;">
-        <div class="takeaway-box" style="background:#070C18;">
-          <div style="font-weight:700; color:#00E5FF; font-size:0.9rem; margin-bottom:6px;">🔥 1. 自媒体爆款提示词 (小红书/抖音)</div>
-          <p style="font-size:0.8rem; color:#CBD5E1; line-height:1.5;">
-            请将医学研究报告转换为 5 张小红书 3:4 视觉卡片。大字突出 5年生存率 94.3% 与《柳叶刀》顶刊，展示 1106 例入组、KM 生存曲线、局部复发与肺功能保留多 3.5% 的获益平衡，输出通俗易懂的就医指南与免责声明。
-          </p>
+      <!-- Prompt Sub-tabs -->
+      <div class="prompt-tabs-nav" style="display:flex; gap:6px; margin: 10px 0 12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px; overflow-x:auto; flex-shrink:0;">
+        <button class="ratio-btn active" data-ptab="master" style="padding:4px 10px; font-size:0.76rem; white-space:nowrap;">
+          <i class="fa-solid fa-crown" style="color:#F59E0B; margin-right:4px;"></i>完整母版提示词
+        </button>
+        <button class="ratio-btn" data-ptab="viral" style="padding:4px 10px; font-size:0.76rem; white-space:nowrap;">
+          <i class="fa-solid fa-fire" style="color:#00E5FF; margin-right:4px;"></i>自媒体爆款风
+        </button>
+        <button class="ratio-btn" data-ptab="academic" style="padding:4px 10px; font-size:0.76rem; white-space:nowrap;">
+          <i class="fa-solid fa-microscope" style="color:#10B981; margin-right:4px;"></i>临床学术汇报风
+        </button>
+        <button class="ratio-btn" data-ptab="patient" style="padding:4px 10px; font-size:0.76rem; white-space:nowrap;">
+          <i class="fa-solid fa-stethoscope" style="color:#F59E0B; margin-right:4px;"></i>医患科普沟通风
+        </button>
+        <button class="ratio-btn" data-ptab="compare" style="padding:4px 10px; font-size:0.76rem; white-space:nowrap;">
+          <i class="fa-solid fa-code-compare" style="color:#A855F7; margin-right:4px;"></i>演进对比表
+        </button>
+      </div>
+
+      <!-- Tab Contents (Scrollable Container) -->
+      <div style="flex:1; overflow-y:auto; padding-right:4px;">
+        <!-- Tab 1: Master Prompt -->
+        <div id="ptab-content-master" class="ptab-pane">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:0.8rem; color:#CBD5E1; font-weight:700;">
+              <i class="fa-solid fa-terminal" style="color:#00E5FF; margin-right:4px;"></i>可直接用于 Claude / ChatGPT / Gemini 的通用系统提示词
+            </span>
+            <button id="btn-copy-master-prompt" class="btn btn-primary btn-sm" style="padding:2px 10px; font-size:0.75rem; height:26px;">
+              <i class="fa-solid fa-copy"></i> 复制完整提示词
+            </button>
+          </div>
+          <pre id="master-prompt-code" style="background:#070C18; border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; font-size:0.76rem; color:#E2E8F0; line-height:1.55; white-space:pre-wrap; word-break:break-word; max-height:48vh; overflow-y:auto; font-family:'Courier New', monospace;"></pre>
         </div>
 
-        <div class="takeaway-box" style="background:#070C18;">
-          <div style="font-weight:700; color:#10B981; font-size:0.9rem; margin-bottom:6px;">🔬 2. 严谨临床学术提示词 (同行研讨/专家汇报)</div>
-          <p style="font-size:0.8rem; color:#CBD5E1; line-height:1.5;">
-            构建 Bento Grid 学术可视化。标注 ITT 意向人群、非劣效界值 (HR 1.54) 与优效性 P=0.0082，绘制阶梯状 KM 曲线，详细列明 5年 RFS、局部复发率 (10.5% vs 5.4%)、FEV1 损失率及指南改写要点。
-          </p>
+        <!-- Tab 2: Viral Social Prompt -->
+        <div id="ptab-content-viral" class="ptab-pane" style="display:none;">
+          <div style="background:#070C18; border:1px solid rgba(0,229,255,0.25); border-radius:10px; padding:14px; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <div style="font-weight:700; color:#00E5FF; font-size:0.9rem;">🔥 自媒体爆款提示词 (小红书/抖音)</div>
+              <button id="btn-copy-viral-prompt" class="btn btn-secondary btn-sm" style="padding:2px 10px; font-size:0.75rem; height:26px;">
+                <i class="fa-solid fa-copy" style="color:#00E5FF;"></i> 复制此提示词
+              </button>
+            </div>
+            <p id="viral-prompt-text" style="font-size:0.82rem; color:#CBD5E1; line-height:1.6; margin:0;">
+              请将医学研究报告转换为 5 张小红书 3:4 视觉卡片。大字突出 5年生存率 94.3% 与《柳叶刀》顶刊背书，展示 1106 例入组、阶梯 KM 生存曲线、局部复发与肺功能保留多 3.5% 的获益平衡，输出通俗易懂的就医指南与标准免责声明。
+            </p>
+          </div>
         </div>
 
-        <div class="takeaway-box" style="background:#070C18;">
-          <div style="font-weight:700; color:#F59E0B; font-size:0.9rem; margin-bottom:6px;">🩺 3. 患者科普就诊指南提示词 (医患沟通)</div>
-          <p style="font-size:0.8rem; color:#CBD5E1; line-height:1.5;">
-            通俗大白话解读“肺段切除 vs 肺叶切除”，打消“不切整叶肺切不干净”的恐慌，直观展示多保住 3.5% 肺活量对术后生活质量的意义，并告知前 3 年每半年复查胸部 CT 的随访要点。
-          </p>
+        <!-- Tab 3: Academic Prompt -->
+        <div id="ptab-content-academic" class="ptab-pane" style="display:none;">
+          <div style="background:#070C18; border:1px solid rgba(16,185,129,0.25); border-radius:10px; padding:14px; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <div style="font-weight:700; color:#10B981; font-size:0.9rem;">🔬 严谨临床学术提示词 (同行研讨/专家汇报)</div>
+              <button id="btn-copy-academic-prompt" class="btn btn-secondary btn-sm" style="padding:2px 10px; font-size:0.75rem; height:26px;">
+                <i class="fa-solid fa-copy" style="color:#10B981;"></i> 复制此提示词
+              </button>
+            </div>
+            <p id="academic-prompt-text" style="font-size:0.82rem; color:#CBD5E1; line-height:1.6; margin:0;">
+              构建 Bento Grid 学术可视化。标注 ITT 意向人群、非劣效界值 (HR 1.54) 与优效性 P=0.0082，绘制阶梯状 KM 曲线，详细列明 5年 RFS、局部复发率 (10.5% vs 5.4%)、FEV1 损失率及指南改写要点。
+            </p>
+          </div>
+        </div>
+
+        <!-- Tab 4: Patient Guide Prompt -->
+        <div id="ptab-content-patient" class="ptab-pane" style="display:none;">
+          <div style="background:#070C18; border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:14px; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <div style="font-weight:700; color:#F59E0B; font-size:0.9rem;">🩺 患者科普就诊指南提示词 (医患沟通)</div>
+              <button id="btn-copy-patient-prompt" class="btn btn-secondary btn-sm" style="padding:2px 10px; font-size:0.75rem; height:26px;">
+                <i class="fa-solid fa-copy" style="color:#F59E0B;"></i> 复制此提示词
+              </button>
+            </div>
+            <p id="patient-prompt-text" style="font-size:0.82rem; color:#CBD5E1; line-height:1.6; margin:0;">
+              通俗大白话解读“肺段切除 vs 肺叶切除”，打消“不切整叶肺切不干净”的恐慌，直观展示多保住 3.5% 肺活量对术后生活质量的意义，并告知前 3 年每半年复查胸部 CT 的随访要点。
+            </p>
+          </div>
+        </div>
+
+        <!-- Tab 5: Compare Table -->
+        <div id="ptab-content-compare" class="ptab-pane" style="display:none;">
+          <div style="overflow-x:auto;">
+            <table class="table-preview" style="font-size:0.78rem;">
+              <thead>
+                <tr>
+                  <th>维度</th>
+                  <th>原版提示词 (特斯拉财报版)</th>
+                  <th>升级后：医学临床与科研专属提示词</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><b>设计定位</b></td>
+                  <td>商业财报、营收利润数字呈现</td>
+                  <td><b style="color:#00E5FF;">循证医学顶刊质感、生存曲线、临床终点</b></td>
+                </tr>
+                <tr>
+                  <td><b>色彩系统</b></td>
+                  <td>纯黑底 + 特斯拉红</td>
+                  <td><b style="color:#10B981;">暗夜深蓝 + 科技青 + 翡翠绿 + 珊瑚红</b></td>
+                </tr>
+                <tr>
+                  <td><b>核心数据</b></td>
+                  <td>营收、净利润、交付台数</td>
+                  <td><b style="color:#00E5FF;">5年OS/RFS、HR风险比、P值、样本量、FEV1</b></td>
+                </tr>
+                <tr>
+                  <td><b>图表组件</b></td>
+                  <td>常规柱状图、折线图</td>
+                  <td><b style="color:#10B981;">Kaplan-Meier 阶梯生存曲线、亚组森林图</b></td>
+                </tr>
+                <tr>
+                  <td><b>受众分层</b></td>
+                  <td>投资者、分析师</td>
+                  <td><b style="color:#F59E0B;">双层：临床医生同行 + 患者家属科普</b></td>
+                </tr>
+                <tr>
+                  <td><b>分发支持</b></td>
+                  <td>仅单页 HTML 展示</td>
+                  <td><b style="color:#00E5FF;">原生小红书 (3:4) / 抖音 (9:16) 模块化切片</b></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <div style="margin-top:20px; text-align:right;">
-        <a href="output/optimized_medical_prompt.md" target="_blank" class="btn btn-primary btn-sm">
-          <i class="fa-solid fa-file-lines"></i> 打开完整 Markdown 提示词文件
-        </a>
+      <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; border-top:1px solid rgba(255,255,255,0.08); padding-top:10px;">
+        <span style="font-size:0.72rem; color:#64748B;">
+          <i class="fa-solid fa-circle-info" style="color:#00E5FF;"></i> 系统内置纯原生 UTF-8 提示词库，安全隐私且无需跳出页面
+        </span>
+        <button id="btn-close-prompt-bottom" class="btn btn-secondary btn-sm">
+          关闭窗口
+        </button>
       </div>
     </div>
   </div>
@@ -646,10 +756,10 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- App Scripts -->
-  <script src="js/pdf_extractor.js?v=1.1.0"></script>
-  <script src="js/medical_analyzer.js?v=1.1.0"></script>
-  <script src="js/card_slicer.js?v=1.1.0"></script>
-  <script src="js/exporter.js?v=1.1.0"></script>
-  <script src="js/app.js?v=1.1.0"></script>
+  <script src="js/pdf_extractor.js?v=1.1.1"></script>
+  <script src="js/medical_analyzer.js?v=1.1.1"></script>
+  <script src="js/card_slicer.js?v=1.1.1"></script>
+  <script src="js/exporter.js?v=1.1.1"></script>
+  <script src="js/app.js?v=1.1.1"></script>
 </body>
 </html>

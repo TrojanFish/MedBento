@@ -28,6 +28,45 @@ const JCOG_MARKDOWN_PRESET = `# JCOG0802 / WJOG4607L: 早期非小细胞肺癌�
 2. **切缘铁律**：术中需确保切缘 ≥2.0cm 或大于肿瘤最大径，以最大限度控制局部切缘复发风险。
 `;
 
+const FULL_MASTER_PROMPT = `## 🏥 医学科研与肿瘤生存率 Bento Grid 网页及自媒体切图生成提示词 (Medical-Bento v2.0)
+
+帮我将这个【医学临床研究报告 / JCOG 肺癌生存率文档】生成一个具备 Apple 科技质感与医学顶刊学术风范的 HTML 交互式 Bento Grid 网页，并满足自媒体（小红书、抖音）自动切片要求，具体规范如下：
+
+### 1. 视觉设计与配色系统 (Medical Tech Bento Grid)
+- 背景底色：采用深邃沉稳的暗夜深蓝/生命深空黑（#0A0F1D / #0F172A），营造顶尖医学科研的严肃与科技感；
+- 核心高亮色：
+  - 医疗科技冷光青（#00E5FF / #0284C7）：用于核心技术、主要终点（Primary Endpoint）与试验标识；
+  - 生命翡翠绿（#10B981）：用于生存率提升、优效性证实（Superiority）与积极获益指标；
+  - 预警珊瑚红（#F43F5E）：用于局部复发、不良反应及风险提示；
+- 光影与材质：运用微光透明度渐变（Glow Effect）与 Apple 风格磨砂玻璃拟态（Backdrop-blur 12px + 1px 半透明边框 #1E293B）。
+
+### 2. 医学核心数据超大字与视觉张力 (Clinical KPI Hierarchy)
+- 提取并采用超大粗体数字呈现医学关键终点，与细粒度学术参数形成强烈视觉反差：
+  - 5年总生存率 (5-Yr OS)：如 94.3% vs 91.1%
+  - 风险比 (Hazard Ratio)：如 HR 0.663 (95% CI: 0.474-0.927)
+  - 统计学显著性：如 P = 0.0082 (优效性) / P < 0.0001 (非劣效性)
+  - 患者基线：如 N = 1,106 例 / 中位随访 7.3 年
+  - 器官功能保留：如 12个月 FEV1 仅损失 8.5%
+
+### 3. 专业医学可视化图表 (Kaplan-Meier & Medical Charts)
+- 引入 Chart.js 或高精度矢量 SVG 组件：
+  - Kaplan-Meier 生存曲线：必须使用阶梯状曲线，清晰绘制各组生存概率随时间（0~7年）的变化轨迹，并配有图例与刻度；
+  - 肺功能与复发率多维对比图：使用对比柱状图或雷达图呈现肺段 vs 肺叶在肺功能、局部复发、非癌死因上的差异；
+  - 研究流程图 (CONSORT Diagram)：清晰展示筛查、1:1 随机化、干预与 ITT 分析路径。
+
+### 4. 中英文排版与学术规范 (Bilingual Typography)
+- 采用 Inter / Outfit / 微软雅黑 现代无衬线字体；
+- 中文大字为主标题与通俗解读，英文小字作为学术微标点缀；
+- 严禁使用玩具感 Emoji 作为主要医学图标，改用专业医疗线框图标（如 dna, stethoscope, shield, award）。
+
+### 5. 自媒体（小红书/抖音）5步切片结构 (Social Media Slicing Architecture)
+网页内容应严格按照自媒体阅读习惯分为 5 个独立卡片模块，每个模块均可自适应 3:4 (小红书 1080x1440) 或 9:16 (抖音 1080x1920) 比例切片：
+- 【Card 1: 爆款封面】：高冲突学术标题 + 5年OS 94.3% 超大字 + 顶刊《The Lancet》背书 + 吸引点击的核心提问；
+- 【Card 2: 试验设计与入组】：多中心 Phase 3 设计 + 1106例患者入组标准 + 肺段切除 vs 肺叶切除解剖范围示意；
+- 【Card 3: 生存率曲线与硬核数据】：KM 曲线图 + HR 0.663 + P=0.0082 + 死亡风险直降 33.7% 核心解读；
+- 【Card 4: 局部复发与肺功能平衡】：复发率 10.5% vs 5.4% 深度剖析 + 为什么肺段切除患者活得更长；
+- 【Card 5: 患者科普总结与就诊建议】：早期肺癌筛查黄金期 + 手术选择建议 + 严守复查纪律 + 标准医学免责声明。`;
+
 document.addEventListener("DOMContentLoaded", () => {
   App.init();
 });
@@ -561,11 +600,17 @@ const App = {
       });
     }
 
-    // 8. Prompt Template Modal
+    // 8. In-App Prompt Center Modal
     const btnShowPrompt = document.getElementById("btn-show-prompt");
     const modalPrompt = document.getElementById("modal-prompt");
     const btnCloseModal = document.getElementById("btn-close-modal");
+    const btnClosePromptBottom = document.getElementById("btn-close-prompt-bottom");
+    const masterPromptCode = document.getElementById("master-prompt-code");
     
+    if (masterPromptCode) {
+      masterPromptCode.textContent = FULL_MASTER_PROMPT;
+    }
+
     if (btnShowPrompt && modalPrompt) {
       btnShowPrompt.addEventListener("click", () => {
         modalPrompt.classList.add("active");
@@ -574,6 +619,64 @@ const App = {
     if (btnCloseModal && modalPrompt) {
       btnCloseModal.addEventListener("click", () => {
         modalPrompt.classList.remove("active");
+      });
+    }
+    if (btnClosePromptBottom && modalPrompt) {
+      btnClosePromptBottom.addEventListener("click", () => {
+        modalPrompt.classList.remove("active");
+      });
+    }
+
+    // 8.1 Prompt Modal Tabs Switcher
+    document.querySelectorAll(".prompt-tabs-nav .ratio-btn[data-ptab]").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        document.querySelectorAll(".prompt-tabs-nav .ratio-btn[data-ptab]").forEach(b => b.classList.remove("active"));
+        e.currentTarget.classList.add("active");
+
+        const tabKey = e.currentTarget.getAttribute("data-ptab");
+        document.querySelectorAll(".ptab-pane").forEach(pane => {
+          pane.style.display = "none";
+        });
+        const targetPane = document.getElementById(`ptab-content-${tabKey}`);
+        if (targetPane) {
+          targetPane.style.display = "block";
+        }
+      });
+    });
+
+    // 8.2 Copy Handlers for Prompt Tabs
+    const btnCopyMasterPrompt = document.getElementById("btn-copy-master-prompt");
+    if (btnCopyMasterPrompt) {
+      btnCopyMasterPrompt.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(FULL_MASTER_PROMPT);
+        this.showToast("📋 完整母版提示词已复制到剪贴板！", "success");
+      });
+    }
+
+    const btnCopyViralPrompt = document.getElementById("btn-copy-viral-prompt");
+    if (btnCopyViralPrompt) {
+      btnCopyViralPrompt.addEventListener("click", async () => {
+        const text = document.getElementById("viral-prompt-text")?.innerText || "";
+        await navigator.clipboard.writeText(text.trim());
+        this.showToast("📋 自媒体爆款提示词已复制！", "success");
+      });
+    }
+
+    const btnCopyAcademicPrompt = document.getElementById("btn-copy-academic-prompt");
+    if (btnCopyAcademicPrompt) {
+      btnCopyAcademicPrompt.addEventListener("click", async () => {
+        const text = document.getElementById("academic-prompt-text")?.innerText || "";
+        await navigator.clipboard.writeText(text.trim());
+        this.showToast("📋 临床学术汇报提示词已复制！", "success");
+      });
+    }
+
+    const btnCopyPatientPrompt = document.getElementById("btn-copy-patient-prompt");
+    if (btnCopyPatientPrompt) {
+      btnCopyPatientPrompt.addEventListener("click", async () => {
+        const text = document.getElementById("patient-prompt-text")?.innerText || "";
+        await navigator.clipboard.writeText(text.trim());
+        this.showToast("📋 医患科普沟通提示词已复制！", "success");
       });
     }
 
