@@ -270,15 +270,27 @@ const CardSlicer = {
    * Smart Cover Journal Badge Formatter
    */
   getCoverJournalBadge(data) {
-    let j = (data.journal || "Lancet").trim();
+    let j = (data.journal || "临床顶刊").trim().replace(/^[《<"']+|[》>"']+$/g, "");
     if (j.includes("Lancet")) return "《Lancet 柳叶刀》重磅";
     if (j.includes("New England") || j.includes("NEJM")) return "《NEJM》顶刊重磅";
     if (j.includes("Journal of Clinical Oncology") || j.includes("JCO")) return "《JCO》顶刊重磅";
     if (j.includes("Thoracic Oncology") || j.includes("JTO")) return "《JTO》胸部肿瘤重磅";
+    if (j.includes("JAMA")) return "《JAMA》顶刊重磅";
+    if (j.includes("BMJ")) return "《BMJ》顶刊重磅";
     if (j.includes("Nature")) return "《Nature》顶级重磅";
     if (j.includes("Cell")) return "《Cell》顶刊重磅";
-    if (j.length > 12) {
-      j = this.getShortJournalName(j);
+    if (j.includes("Annals of Oncology") || j.includes("Ann Oncol")) return "《Ann Oncol》顶刊重磅";
+    if (j.includes("Lancet Oncol")) return "《Lancet Oncol》重磅";
+    if (j.includes("Lancet Respir")) return "《Lancet Respir》重磅";
+    if (j.includes("Cancer Discovery")) return "《Cancer Discov》重磅";
+    if (j.includes("Circulation")) return "《Circulation》重磅";
+    if (j.includes("Science")) return "《Science》顶刊重磅";
+    
+    if (j.length > 10) {
+      j = this.getShortJournalName(j).replace(/^[《<"']+|[》>"']+$/g, "");
+      if (j.length > 10) {
+        j = j.substring(0, 9) + "…";
+      }
     }
     return `《${j}》重磅`;
   },
@@ -693,15 +705,22 @@ const CardSlicer = {
     const fillGradientId = `km-grad-${this.currentTheme || 'theme-dark'}`;
     const fillColorStart = isLight ? "rgba(3,105,161,0.25)" : isEmerald ? "rgba(52,211,153,0.25)" : "rgba(0,229,255,0.25)";
 
-    const km = data.kmData || (typeof MedicalAnalyzer !== "undefined" && MedicalAnalyzer.DEFAULT_JCOG_DATA ? MedicalAnalyzer.DEFAULT_JCOG_DATA.kmData : {
-      years: [0, 1, 2, 3, 4, 5, 6, 7],
-      segmentectomyOS: [100.0, 99.1, 97.8, 96.4, 95.2, 94.3, 93.1, 91.8],
-      lobectomyOS:      [100.0, 98.4, 96.2, 94.1, 92.5, 91.1, 89.2, 87.5]
-    });
+    let km = data.kmData;
+    if (!km || !Array.isArray(km.segmentectomyOS) || km.segmentectomyOS.length === 0) {
+      const expOS = typeof data.arms?.experimental?.fiveYrOS === "number" ? data.arms.experimental.fiveYrOS : 94.3;
+      const ctrlOS = typeof data.arms?.control?.fiveYrOS === "number" ? data.arms.control.fiveYrOS : 91.1;
+      const expDrop = (100 - expOS) / 5;
+      const ctrlDrop = (100 - ctrlOS) / 5;
+      km = {
+        years: [0, 1, 2, 3, 4, 5],
+        segmentectomyOS: [100, +(100 - expDrop * 0.4).toFixed(1), +(100 - expDrop * 1.1).toFixed(1), +(100 - expDrop * 2.2).toFixed(1), +(100 - expDrop * 3.5).toFixed(1), expOS],
+        lobectomyOS: [100, +(100 - ctrlDrop * 0.6).toFixed(1), +(100 - ctrlDrop * 1.5).toFixed(1), +(100 - ctrlDrop * 2.7).toFixed(1), +(100 - ctrlDrop * 4.0).toFixed(1), ctrlOS]
+      };
+    }
 
-    const years = km.years || [0, 1, 2, 3, 4, 5, 6, 7];
-    const segOS = km.segmentectomyOS || [100, 99.1, 97.8, 96.4, 95.2, 94.3, 93.1, 91.8];
-    const lobOS = km.lobectomyOS || [100, 98.4, 96.2, 94.1, 92.5, 91.1, 89.2, 87.5];
+    const years = km.years || [0, 1, 2, 3, 4, 5];
+    const segOS = km.segmentectomyOS || [100, 99.1, 97.8, 96.4, 95.2, 94.3];
+    const lobOS = km.lobectomyOS || [100, 98.4, 96.2, 94.1, 92.5, 91.1];
 
     const allVals = [...segOS, ...lobOS].filter(v => typeof v === 'number' && !isNaN(v));
     const minVal = allVals.length > 0 ? Math.min(...allVals) : 80;
