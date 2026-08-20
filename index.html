@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <!-- Custom Style -->
-  <link rel="stylesheet" href="css/style.css?v=1.1.3">
+  <link rel="stylesheet" href="css/style.css?v=1.2.0">
 
   <!-- Marked.js for Markdown & Table Rendering -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
@@ -39,6 +39,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <!-- JSZip for batch download -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <!-- jsPDF for Multi-page Presentation PDF Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -57,9 +59,6 @@
       <div class="header-actions">
         <button id="btn-pwa-install" class="btn btn-secondary btn-sm" style="display:none; color:#00E5FF; border-color:rgba(0,229,255,0.4);" title="安装为桌面/手机 App 应用">
           <i class="fa-solid fa-download"></i> 安装 App
-        </button>
-        <button id="btn-show-patient-profile" class="btn btn-secondary btn-sm" style="color:#10B981; border-color:rgba(16,185,129,0.3);">
-          <i class="fa-solid fa-address-card" style="color: #10B981;"></i> 个人医学档案
         </button>
         <button id="btn-show-prompt" class="btn btn-secondary btn-sm">
           <i class="fa-solid fa-wand-magic-sparkles" style="color: #00E5FF;"></i> 提示词库
@@ -426,6 +425,14 @@
               <button class="ratio-btn" data-theme="theme-light">📜 便签纸暖白</button>
               <button class="ratio-btn" data-theme="theme-emerald">🧪 蓝绿生命</button>
             </div>
+            <!-- Theme Accent Color Palette -->
+            <div class="theme-palette-wrap" title="选择顶刊主题色 (切换科技蓝/未来紫/典雅金/预警红)">
+              <span class="theme-palette-label">色调:</span>
+              <button class="palette-dot active" data-palette="#00E5FF" title="顶刊科技蓝 (Lancet/NEJM Cyan)" style="background:#00E5FF;"></button>
+              <button class="palette-dot" data-palette="#A855F7" title="前沿未来紫 (Nature Purple)" style="background:#A855F7;"></button>
+              <button class="palette-dot" data-palette="#F59E0B" title="学术典雅金 (ASCO Amber)" style="background:#F59E0B;"></button>
+              <button class="palette-dot" data-palette="#F43F5E" title="预警活力红 (Alert Coral)" style="background:#F43F5E;"></button>
+            </div>
           </div>
 
           <!-- Deck Count Adaptive Selector (5~8 Cards) -->
@@ -460,6 +467,9 @@
           </button>
           <button id="btn-copy-social" class="btn btn-secondary btn-sm">
             <i class="fa-solid fa-copy" style="color:#10B981;"></i> 复制发布文案
+          </button>
+          <button id="btn-export-pdf" class="btn btn-secondary btn-sm" title="一键导出多页高清学术汇报演讲演示文档 (PDF)">
+            <i class="fa-solid fa-file-pdf" style="color:#F43F5E;"></i> 导出汇报 (PDF)
           </button>
           <button id="btn-export-long" class="btn btn-secondary btn-sm">
             <i class="fa-solid fa-scroll" style="color:#F59E0B;"></i> 导出长图 (PNG)
@@ -724,221 +734,6 @@
     </div>
   </div>
 
-  <!-- Personal Medical Record / Profile Modal -->
-  <div id="modal-patient-profile" class="modal-overlay">
-    <div class="modal-card" style="max-width: 860px; max-height: 90vh; display:flex; flex-direction:column; padding:24px 28px;">
-      <div class="modal-header" style="margin-bottom:12px; flex-shrink:0;">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <div class="brand-logo" style="width:36px; height:36px; font-size:1rem; background:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.4);">
-            <i class="fa-solid fa-address-card" style="color:#10B981;"></i>
-          </div>
-          <div>
-            <h3 class="modal-title" style="margin-bottom:2px;">
-              建立与管理个人医学档案
-            </h3>
-            <div style="font-size:0.72rem; color:#94A3B8;">按循证医学临床就诊规范排版 · 本地隐私加密存储 · 支持与当前研究智能匹配</div>
-          </div>
-        </div>
-        <button id="btn-close-pat-modal" class="modal-close">&times;</button>
-      </div>
-
-      <!-- Scrollable Form Container -->
-      <div style="flex:1; overflow-y:auto; padding-right:6px; display:flex; flex-direction:column; gap:12px;">
-        
-        <!-- 模块一：患者基本画像（置顶 · 基础信息） -->
-        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(16,185,129,0.25); border-radius:12px; padding:14px 16px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <div style="font-weight:700; color:#10B981; font-size:0.88rem;">
-              <i class="fa-solid fa-user-doctor" style="margin-right:6px;"></i>模块一：患者基本画像 (置顶 · 临床基线)
-            </div>
-            <span style="font-size:0.72rem; color:#64748B;">* 决定 AI 临床决策树与个体化获益推荐</span>
-          </div>
-
-          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
-            <div>
-              <label style="font-size:0.78rem; color:#CBD5E1; font-weight:600; display:block; margin-bottom:4px;">患者姓名 / 称呼：</label>
-              <input type="text" id="pat-name" class="textarea-custom" placeholder="如：张先生 / 患者本人" style="height:34px; padding:4px 10px; margin-top:0; font-size:0.82rem;">
-            </div>
-
-            <div>
-              <label style="font-size:0.78rem; color:#00E5FF; font-weight:700; display:block; margin-bottom:4px;">
-                <i class="fa-solid fa-cake-candles"></i> 患者年龄 (周岁)：
-              </label>
-              <input type="number" id="pat-age" class="textarea-custom" placeholder="如：65" min="1" max="120" style="height:34px; padding:4px 10px; margin-top:0; font-size:0.82rem; color:#00E5FF; font-weight:700;">
-            </div>
-
-            <div>
-              <label style="font-size:0.78rem; color:#00E5FF; font-weight:700; display:block; margin-bottom:4px;">
-                <i class="fa-solid fa-venus-mars"></i> 生物学性别：
-              </label>
-              <select id="pat-gender" class="textarea-custom" style="height:34px; padding:4px 10px; margin-top:0; font-size:0.82rem; color:#00E5FF; font-weight:700;">
-                <option value="female">女性 (Female · EGFR高突变率群体)</option>
-                <option value="male">男性 (Male)</option>
-                <option value="other">保密 / 其他</option>
-              </select>
-            </div>
-
-            <div>
-              <label style="font-size:0.78rem; color:#CBD5E1; font-weight:600; display:block; margin-bottom:4px;">吸烟史状况：</label>
-              <select id="pat-smoking" class="textarea-custom" style="height:34px; padding:4px 10px; margin-top:0; font-size:0.82rem;">
-                <option value="never">从不吸烟 (Never Smoker)</option>
-                <option value="former">已戒烟 >1年 (Former Smoker)</option>
-                <option value="current">目前吸烟 (Current Smoker)</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- 模块二：初诊与病灶特征（诊断信息） -->
-        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(0,229,255,0.2); border-radius:12px; padding:14px 16px;">
-          <div style="font-weight:700; color:#00E5FF; font-size:0.88rem; margin-bottom:10px;">
-            <i class="fa-solid fa-lungs" style="margin-right:6px;"></i>模块二：初诊与影像病灶特征 (诊断信息)
-          </div>
-
-          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
-            <div>
-              <label style="font-size:0.78rem; color:#CBD5E1; font-weight:600; display:block; margin-bottom:4px;">肿瘤解剖部位：</label>
-              <input type="text" id="pat-location" class="textarea-custom" placeholder="如：右肺上叶外周型 (S1段)" style="height:34px; padding:4px 10px; margin-top:0; font-size:0.82rem;">
-            </div>
-
-            <div>
-              <label style="font-size:0.78rem; color:#CBD5E1; font-weight:600; display:block; margin-bottom:4px;">结节最大径与 CTR：</label>
-              <input type="text" id="pat-size" class="textarea-custom" placeholder="如：1.6cm, CTR 0.7 实性为主" style="height:34px; padding:4px 10px; margin-top:0; font-size:0.82rem;">
-            </div>
-
-            <div>
-              <label style="font-size:0.78rem; color:#CBD5E1; font-weight:600; display:block; margin-bottom:4px;">临床分期 (cTNM)：</label>
-              <select id="pat-stage" class="textarea-custom" style="height:34px; padding:4px 10px; margin-top:0; font-size:0.82rem;">
-                <option value="IA1">cT1aN0M0 (IA1期 · ≤1.0cm)</option>
-                <option value="IA2" selected>cT1bN0M0 (IA2期 · 1.1~2.0cm)</option>
-                <option value="IA3">cT1cN0M0 (IA3期 · 2.1~3.0cm)</option>
-                <option value="IB">cT2aN0M0 (IB期 · 3.1~4.0cm)</option>
-                <option value="IIA_IIB">IIA / IIB期</option>
-                <option value="IIIA">IIIA期 (伴有淋巴结转移)</option>
-                <option value="IV">IV期 (晚期转移)</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- 模块三：病理与分子分型（精准特征） -->
-        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(168,85,247,0.2); border-radius:12px; padding:14px 16px;">
-          <div style="font-weight:700; color:#C084FC; font-size:0.88rem; margin-bottom:10px;">
-            <i class="fa-solid fa-dna" style="margin-right:6px;"></i>模块三：病理与分子分型 (精准靶点特征)
-          </div>
-
-          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
-            <div>
-              <label style="font-size:0.78rem; color:#CBD5E1; font-weight:600; display:block; margin-bottom:4px;">病理组织学分型：</label>
-              <input type="text" id="pat-pathology" class="textarea-custom" placeholder="如：浸润性肺腺癌 (贴壁/腺泡型)" style="height:34px; padding:4px 10px; margin-top:0; font-size:0.82rem;">
-            </div>
-
-            <div>
-              <label style="font-size:0.78rem; color:#CBD5E1; font-weight:600; display:block; margin-bottom:4px;">驱动基因突变状态：</label>
-              <select id="pat-gene" class="textarea-custom" style="height:34px; padding:4px 10px; margin-top:0; font-size:0.82rem;">
-                <option value="EGFR_19del">EGFR 19外显子缺失 (19del)</option>
-                <option value="EGFR_L858R">EGFR 21外显子 L858R</option>
-                <option value="ALK">ALK 融合阳性</option>
-                <option value="KRAS">KRAS G12C 突变</option>
-                <option value="wildtype">全野生型 (未见突变)</option>
-                <option value="unknown" selected>尚未检测 / 报告未出</option>
-              </select>
-            </div>
-
-            <div>
-              <label style="font-size:0.78rem; color:#CBD5E1; font-weight:600; display:block; margin-bottom:4px;">病理高危特征：</label>
-              <input type="text" id="pat-risks" class="textarea-custom" placeholder="如：STAS阴性, 胸膜侵犯PL0, 脉管(-)" style="height:34px; padding:4px 10px; margin-top:0; font-size:0.82rem;">
-            </div>
-          </div>
-        </div>
-
-        <!-- 模块四：治疗与干预方案（治疗记录） -->
-        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(245,158,11,0.25); border-radius:12px; padding:14px 16px;">
-          <div style="font-weight:700; color:#F59E0B; font-size:0.88rem; margin-bottom:10px;">
-            <i class="fa-solid fa-syringe" style="margin-right:6px;"></i>模块四：治疗与手术方案 (治疗记录)
-          </div>
-
-          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
-            <div>
-              <label style="font-size:0.78rem; color:#F59E0B; font-weight:700; display:block; margin-bottom:4px;">
-                <i class="fa-solid fa-scissors"></i> 手术术式 (Surgical Procedure)：
-              </label>
-              <select id="pat-surgery" class="textarea-custom" style="height:34px; padding:4px 10px; margin-top:0; font-size:0.82rem; color:#F59E0B; font-weight:700;">
-                <option value="segmentectomy" selected>解剖性肺段切除术 (Segmentectomy · 保肺术式)</option>
-                <option value="lobectomy">标准肺叶切除术 (Lobectomy · 传统全切)</option>
-                <option value="wedge">胸腔镜楔形切除术 (Wedge Resection)</option>
-                <option value="pending">尚未手术 (术前评估中)</option>
-                <option value="nonsurgical">非手术 / 靶向免疫治疗中</option>
-              </select>
-            </div>
-
-            <div>
-              <label style="font-size:0.78rem; color:#CBD5E1; font-weight:600; display:block; margin-bottom:4px;">术中切缘与淋巴结情况：</label>
-              <input type="text" id="pat-margin" class="textarea-custom" placeholder="如：切缘距离 2.2cm, 采样淋巴结均阴性" style="height:34px; padding:4px 10px; margin-top:0; font-size:0.82rem;">
-            </div>
-
-            <div>
-              <label style="font-size:0.78rem; color:#CBD5E1; font-weight:600; display:block; margin-bottom:4px;">术后辅助 / 巩固治疗：</label>
-              <input type="text" id="pat-adjuvant" class="textarea-custom" placeholder="如：无需化疗，定期随访观察 / 奥希替尼辅助" style="height:34px; padding:4px 10px; margin-top:0; font-size:0.82rem;">
-            </div>
-          </div>
-        </div>
-
-        <!-- 模块五：随访管理与预警（尾部 · 行动闭环） -->
-        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(59,130,246,0.25); border-radius:12px; padding:14px 16px;">
-          <div style="font-weight:700; color:#60A5FA; font-size:0.88rem; margin-bottom:10px;">
-            <i class="fa-solid fa-calendar-check" style="margin-right:6px;"></i>模块五：随访管理与预警 (尾部 · 行动与复查闭环)
-          </div>
-
-          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
-            <div>
-              <label style="font-size:0.78rem; color:#CBD5E1; font-weight:600; display:block; margin-bottom:4px;">最近一次胸部薄层CT日期：</label>
-              <input type="date" id="pat-last-ct" class="textarea-custom" style="height:34px; padding:4px 10px; margin-top:0; font-size:0.82rem; color:#CBD5E1;">
-            </div>
-
-            <div>
-              <label style="font-size:0.78rem; color:#CBD5E1; font-weight:600; display:block; margin-bottom:4px;">推荐随访复查周期：</label>
-              <input type="text" id="pat-interval" class="textarea-custom" value="术后前3年每6个月复查薄层CT" style="height:34px; padding:4px 10px; margin-top:0; font-size:0.82rem;">
-            </div>
-
-            <div>
-              <label style="font-size:0.78rem; color:#CBD5E1; font-weight:600; display:block; margin-bottom:4px;">术后肺功能康复状态：</label>
-              <input type="text" id="pat-recovery" class="textarea-custom" placeholder="如：FEV1通气恢复良好，爬3层楼无明显气喘" style="height:34px; padding:4px 10px; margin-top:0; font-size:0.82rem;">
-            </div>
-          </div>
-        </div>
-
-        <!-- AI Match Result Box (Dynamically updated) -->
-        <div id="pat-match-result-box" style="display:none; background:#070C18; border:1px solid rgba(0,229,255,0.4); border-radius:12px; padding:12px 16px; margin-top:4px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <div style="font-weight:700; color:#00E5FF; font-size:0.86rem;">
-              <i class="fa-solid fa-chart-pie"></i> 个人医学档案与当前临床文献匹配分析
-            </div>
-            <span id="pat-match-score" style="font-size:0.75rem; background:rgba(16,185,129,0.2); color:#10B981; padding:2px 8px; border-radius:10px; font-weight:700;">匹配度 95%</span>
-          </div>
-          <p id="pat-match-text" style="font-size:0.78rem; color:#CBD5E1; line-height:1.55; margin:0;"></p>
-        </div>
-
-      </div>
-
-      <!-- Footer Buttons -->
-      <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">
-        <div style="display:flex; gap:8px;">
-          <button id="btn-save-patient-profile" class="btn btn-primary btn-sm" style="height:32px;">
-            <i class="fa-solid fa-floppy-disk"></i> 保存个人档案
-          </button>
-          <button id="btn-match-study" class="btn btn-secondary btn-sm" style="height:32px; color:#00E5FF; border-color:rgba(0,229,255,0.3);">
-            <i class="fa-solid fa-bolt"></i> 智能匹配当前研究获益
-          </button>
-        </div>
-        <button id="btn-close-pat-bottom" class="btn btn-secondary btn-sm" style="height:32px;">
-          关闭窗口
-        </button>
-      </div>
-
-    </div>
-  </div>
-
   <!-- High-Res Card Image Preview & Mobile Save Modal -->
   <div id="modal-image-preview" class="modal-overlay">
     <div class="modal-card" style="max-width: 500px; text-align: center;">
@@ -974,10 +769,10 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- App Scripts -->
-  <script src="js/pdf_extractor.js?v=1.1.3"></script>
-  <script src="js/medical_analyzer.js?v=1.1.3"></script>
-  <script src="js/card_slicer.js?v=1.1.3"></script>
-  <script src="js/exporter.js?v=1.1.3"></script>
-  <script src="js/app.js?v=1.1.3"></script>
+  <script src="js/pdf_extractor.js?v=1.2.0"></script>
+  <script src="js/medical_analyzer.js?v=1.2.0"></script>
+  <script src="js/card_slicer.js?v=1.2.0"></script>
+  <script src="js/exporter.js?v=1.2.0"></script>
+  <script src="js/app.js?v=1.2.0"></script>
 </body>
 </html>

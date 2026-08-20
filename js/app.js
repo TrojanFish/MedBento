@@ -585,6 +585,47 @@ const App = {
       });
     }
 
+    const btnExportPdf = document.getElementById("btn-export-pdf");
+    if (btnExportPdf) {
+      btnExportPdf.addEventListener("click", async () => {
+        if (!this.currentData) {
+          this.showToast("请先生成或载入文献数据后再导出演示文档", "error");
+          return;
+        }
+        try {
+          btnExportPdf.disabled = true;
+          btnExportPdf.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 正在生成演示 PDF...`;
+          await Exporter.exportAllCardsPdf("MedBento_Clinical_Report", (pct, msg) => {
+            this.showToast(`${msg} (${pct}%)`, "info");
+          });
+          this.showToast("✅ 多页学术汇报演示文档 (PDF) 导出成功！", "success");
+        } catch (err) {
+          this.showToast(`PDF 导出失败: ${err.message}`, "error");
+        } finally {
+          btnExportPdf.disabled = false;
+          btnExportPdf.innerHTML = `<i class="fa-solid fa-file-pdf" style="color:#F43F5E;"></i> 导出汇报 (PDF)`;
+        }
+      });
+    }
+
+    // 7.1 Theme Color Palette Swatches
+    document.querySelectorAll(".palette-dot[data-palette]").forEach(dot => {
+      dot.addEventListener("click", (e) => {
+        document.querySelectorAll(".palette-dot[data-palette]").forEach(d => d.classList.remove("active"));
+        e.currentTarget.classList.add("active");
+        const color = e.currentTarget.getAttribute("data-palette");
+        document.documentElement.style.setProperty("--cyan-main", color);
+        document.documentElement.style.setProperty("--card-accent", color);
+        document.documentElement.style.setProperty("--cyan-glow", `${color}40`);
+        
+        // Re-render active SVG charts with new accent
+        if (this.currentData && CardSlicer.initCard3MiniChart) {
+          CardSlicer.initCard3MiniChart(this.currentData);
+        }
+        this.showToast(`🎨 已切换至顶刊专属配色: ${e.currentTarget.title}`, "info");
+      });
+    });
+
     const btnCopySocial = document.getElementById("btn-copy-social");
     if (btnCopySocial) {
       btnCopySocial.addEventListener("click", async () => {
@@ -674,42 +715,6 @@ const App = {
         const text = document.getElementById("patient-prompt-text")?.innerText || "";
         await navigator.clipboard.writeText(text.trim());
         this.showToast("📋 医患科普沟通提示词已复制！", "success");
-      });
-    }
-
-    // 8.3 Patient Medical Record / Profile Modal Handlers
-    const btnShowPatientProfile = document.getElementById("btn-show-patient-profile");
-    const modalPatientProfile = document.getElementById("modal-patient-profile");
-    const btnClosePatModal = document.getElementById("btn-close-pat-modal");
-    const btnClosePatBottom = document.getElementById("btn-close-pat-bottom");
-    const btnSavePatientProfile = document.getElementById("btn-save-patient-profile");
-    const btnMatchStudy = document.getElementById("btn-match-study");
-
-    if (btnShowPatientProfile && modalPatientProfile) {
-      btnShowPatientProfile.addEventListener("click", () => {
-        this.loadPatientProfile();
-        modalPatientProfile.classList.add("active");
-      });
-    }
-    if (btnClosePatModal && modalPatientProfile) {
-      btnClosePatModal.addEventListener("click", () => {
-        modalPatientProfile.classList.remove("active");
-      });
-    }
-    if (btnClosePatBottom && modalPatientProfile) {
-      btnClosePatBottom.addEventListener("click", () => {
-        modalPatientProfile.classList.remove("active");
-      });
-    }
-    if (btnSavePatientProfile) {
-      btnSavePatientProfile.addEventListener("click", () => {
-        this.savePatientProfile();
-        this.showToast("💾 个人医学档案已成功加密保存在本地！", "success");
-      });
-    }
-    if (btnMatchStudy) {
-      btnMatchStudy.addEventListener("click", () => {
-        this.matchPatientProfileWithStudy();
       });
     }
 
@@ -803,6 +808,15 @@ const App = {
   },
 
   async handleFile(file) {
+    if (!file) return;
+
+    // Safety check: 25MB file size pre-flight limit
+    if (file.size > 25 * 1024 * 1024) {
+      this.showToast("⚠️ 上传的文件超过 25MB 上限，建议上传单篇论著 PDF（通常小于 15MB）", "error");
+      this.setProgress(100, "文件体积超限", `当前文件 ${(file.size / 1024 / 1024).toFixed(1)}MB 大于 25MB 上限，请上传单篇原刊论著`, "error");
+      return;
+    }
+
     const badge = document.getElementById("file-info-badge");
     const fileNameSpan = document.getElementById("file-name-text");
     this.currentPdfBase64 = null;
@@ -1460,99 +1474,6 @@ const App = {
     const coverTitle = document.querySelector(".card-cover-title");
     if (coverTitle && t) {
       coverTitle.innerText = t;
-    }
-  },
-
-  loadPatientProfile() {
-    try {
-      const saved = localStorage.getItem("medbento_patient_profile");
-      if (saved) {
-        const data = JSON.parse(saved);
-        if (data.name && document.getElementById("pat-name")) document.getElementById("pat-name").value = data.name;
-        if (data.age && document.getElementById("pat-age")) document.getElementById("pat-age").value = data.age;
-        if (data.gender && document.getElementById("pat-gender")) document.getElementById("pat-gender").value = data.gender;
-        if (data.smoking && document.getElementById("pat-smoking")) document.getElementById("pat-smoking").value = data.smoking;
-        if (data.location && document.getElementById("pat-location")) document.getElementById("pat-location").value = data.location;
-        if (data.size && document.getElementById("pat-size")) document.getElementById("pat-size").value = data.size;
-        if (data.stage && document.getElementById("pat-stage")) document.getElementById("pat-stage").value = data.stage;
-        if (data.pathology && document.getElementById("pat-pathology")) document.getElementById("pat-pathology").value = data.pathology;
-        if (data.gene && document.getElementById("pat-gene")) document.getElementById("pat-gene").value = data.gene;
-        if (data.risks && document.getElementById("pat-risks")) document.getElementById("pat-risks").value = data.risks;
-        if (data.surgery && document.getElementById("pat-surgery")) document.getElementById("pat-surgery").value = data.surgery;
-        if (data.margin && document.getElementById("pat-margin")) document.getElementById("pat-margin").value = data.margin;
-        if (data.adjuvant && document.getElementById("pat-adjuvant")) document.getElementById("pat-adjuvant").value = data.adjuvant;
-        if (data.lastCt && document.getElementById("pat-last-ct")) document.getElementById("pat-last-ct").value = data.lastCt;
-        if (data.interval && document.getElementById("pat-interval")) document.getElementById("pat-interval").value = data.interval;
-        if (data.recovery && document.getElementById("pat-recovery")) document.getElementById("pat-recovery").value = data.recovery;
-      }
-    } catch(e) {}
-  },
-
-  savePatientProfile() {
-    const profile = {
-      name: document.getElementById("pat-name")?.value.trim() || "",
-      age: document.getElementById("pat-age")?.value.trim() || "",
-      gender: document.getElementById("pat-gender")?.value || "female",
-      smoking: document.getElementById("pat-smoking")?.value || "never",
-      location: document.getElementById("pat-location")?.value.trim() || "",
-      size: document.getElementById("pat-size")?.value.trim() || "",
-      stage: document.getElementById("pat-stage")?.value || "IA2",
-      pathology: document.getElementById("pat-pathology")?.value.trim() || "",
-      gene: document.getElementById("pat-gene")?.value || "unknown",
-      risks: document.getElementById("pat-risks")?.value.trim() || "",
-      surgery: document.getElementById("pat-surgery")?.value || "segmentectomy",
-      margin: document.getElementById("pat-margin")?.value.trim() || "",
-      adjuvant: document.getElementById("pat-adjuvant")?.value.trim() || "",
-      lastCt: document.getElementById("pat-last-ct")?.value || "",
-      interval: document.getElementById("pat-interval")?.value.trim() || "",
-      recovery: document.getElementById("pat-recovery")?.value.trim() || "",
-      updatedAt: new Date().toISOString()
-    };
-    try {
-      localStorage.setItem("medbento_patient_profile", JSON.stringify(profile));
-    } catch(e) {}
-    return profile;
-  },
-
-  matchPatientProfileWithStudy() {
-    const profile = this.savePatientProfile();
-    const age = parseInt(profile.age) || 65;
-    const isElderly = age >= 65;
-    const studyName = this.currentData?.id || this.currentData?.studyMeta?.trialName || "JCOG0802";
-    
-    const resultBox = document.getElementById("pat-match-result-box");
-    const scoreBadge = document.getElementById("pat-match-score");
-    const resultText = document.getElementById("pat-match-text");
-
-    let matchScore = 95;
-    let matchInsights = [];
-
-    if (age >= 20 && age <= 79) {
-      matchInsights.push(`👤 <b>年龄 ${age} 岁</b>：符合 ${studyName} 目标入组区间 (20~79岁)；${isElderly ? "作为 ≥65 岁老年群体，保肺肺段切除在降低非癌死亡（HR 0.58）方面获益尤为显著！" : "年轻群体术后长期生存预期良好。"}`);
-    } else {
-      matchScore -= 10;
-      matchInsights.push(`👤 <b>年龄 ${age} 岁</b>：略超出经典 RCT 试验预设范围，建议结合身体心肺储备全面评估。`);
-    }
-
-    if (profile.surgery === "segmentectomy") {
-      matchInsights.push(`🔪 <b>手术术式【解剖性肺段切除术】</b>：与当前试验组方案 100% 对应，5年总生存率预期达 94.3%，较全叶切除多保留约 3.5% 通气肺功能。`);
-    } else if (profile.surgery === "lobectomy") {
-      matchInsights.push(`🔪 <b>手术术式【标准肺叶切除术】</b>：对应当前对照组标准方案，5年总生存率 91.1%，局部切缘复发率更低 (5.4%)。`);
-    } else {
-      matchInsights.push(`🔪 <b>治疗状态</b>：建议携带高分辨 CT 与三甲胸外科专家深入探讨保肺微创指征。`);
-    }
-
-    if (profile.gender === "female" && profile.smoking === "never") {
-      matchInsights.push(`🧬 <b>女性/从不吸烟特征</b>：属于敏感基因高突变优势亚组，术后 5年生存获益一致性极高 (HR 0.65)。`);
-    }
-
-    matchInsights.push(`📅 <b>随访闭环</b>：术中确保安全切缘 ≥2cm，术后前 3 年遵医嘱每 6 个月严密复查胸部薄层 CT。`);
-
-    if (resultBox && scoreBadge && resultText) {
-      scoreBadge.innerText = `匹配度 ${matchScore}%`;
-      resultText.innerHTML = matchInsights.map(item => `<span style="display:block; margin-bottom:4px;">• ${item}</span>`).join("");
-      resultBox.style.display = "block";
-      this.showToast(`🎯 已智能匹配当前研究，匹配度 ${matchScore}%！`, "success");
     }
   },
 

@@ -47,6 +47,9 @@ const Exporter = {
 
         const blob = await this.renderCardToBlob(card);
         folder.file(`${baseName}_Slide_${cardIndex.toString().padStart(2, '0')}.png`, blob);
+
+        // Microtask yield & GC pause for mobile memory stability
+        await new Promise(resolve => setTimeout(resolve, 60));
       }
 
       if (onProgress) onProgress(100, "正在打包生成 ZIP 压缩包...");
@@ -70,6 +73,70 @@ const Exporter = {
 
   async exportAllCardsAsZip(baseName = "MedBento_SocialCards", onProgress = null) {
     return this.exportAllCardsZip(baseName, onProgress);
+  },
+
+  /**
+   * Export all active cards as a crisp multi-page presentation PDF (jsPDF)
+   */
+  async exportAllCardsPdf(baseName = "MedBento_Clinical_Report", onProgress = null) {
+    if (this.isExporting) return;
+    this.isExporting = true;
+
+    try {
+      const cards = document.querySelectorAll(".social-card-item");
+      if (!cards.length) throw new Error("未找到可导出的卡片元素");
+
+      if (typeof window.jspdf === "undefined" && typeof jsPDF === "undefined") {
+        throw new Error("jsPDF 演示文档组件尚未准备就绪，请检查网络连接。");
+      }
+      const { jsPDF } = window.jspdf || window;
+
+      const is916 = document.querySelector(".social-card-item.ratio-9-16");
+      const pdfW = 420;
+      const pdfH = is916 ? 746 : 560;
+
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "px",
+        format: [pdfW, pdfH]
+      });
+
+      for (let i = 0; i < cards.length; i++) {
+        const card = cards[i];
+        const cardIndex = i + 1;
+
+        if (onProgress) {
+          onProgress(Math.round(((i + 1) / cards.length) * 100), `正在合成第 ${cardIndex} / ${cards.length} 页演示幻灯片...`);
+        }
+
+        const canvas = await this.renderCardToCanvas(card);
+        const imgData = canvas.toDataURL("image/png", 0.95);
+
+        if (i > 0) {
+          doc.addPage([pdfW, pdfH], "portrait");
+        }
+        doc.addImage(imgData, "PNG", 0, 0, pdfW, pdfH);
+
+        // Microtask yield & memory release
+        await new Promise(resolve => setTimeout(resolve, 60));
+      }
+
+      const outName = `${baseName}_Presentation.pdf`;
+      doc.save(outName);
+
+      if (typeof App !== "undefined" && App.showToast) {
+        App.showToast("✅ 多页学术汇报演示文档 (PDF) 已成功生成并下载！", "success");
+      }
+      return true;
+    } catch (err) {
+      console.error("PDF Export error:", err);
+      if (typeof App !== "undefined" && App.showToast) {
+        App.showToast(`PDF 导出失败: ${err.message}`, "error");
+      }
+      throw err;
+    } finally {
+      this.isExporting = false;
+    }
   },
 
   /**

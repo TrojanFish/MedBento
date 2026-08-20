@@ -1853,3 +1853,97 @@ body {
     font-size: 0.72rem;
   }
 }
+
+/* ===================================================
+   WYSIWYG Editable Fields & Visual Feedback
+   =================================================== */
+.social-card-item [contenteditable="true"] {
+  cursor: text;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  padding: 1px 3px;
+  margin: -1px -3px;
+}
+.social-card-item [contenteditable="true"]:hover {
+  outline: 1px dashed rgba(0, 229, 255, 0.45);
+  background: rgba(0, 229, 255, 0.05);
+}
+.social-card-item [contenteditable="true"]:focus {
+  outline: 1px solid var(--card-accent, #00E5FF);
+  background: rgba(0, 229, 255, 0.1);
+}
+
+/* ===================================================
+   9:16 Vertical Balance Layout (Douyin / Reels)
+   =================================================== */
+.social-card-item.ratio-9-16 {
+  aspect-ratio: 9 / 16;
+  min-height: 560px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 22px 18px 12px;
+}
+.social-card-item.ratio-9-16 .card-slide {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.social-card-item.ratio-9-16 .card-body-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  margin: 10px 0;
+  gap: 10px;
+}
+.social-card-item.ratio-9-16 .card-cover-stat {
+  margin: 12px 0;
+}
+
+/* ===================================================
+   Theme Palette Dot Selector in Toolbar
+   =================================================== */
+.theme-palette-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 20px;
+  padding: 3px 8px;
+  height: 32px;
+}
+.theme-palette-label {
+  font-size: 0.72rem;
+  color: #94A3B8;
+  font-weight: 600;
+  margin-right: 2px;
+  white-space: nowrap;
+}
+.palette-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  box-sizing: border-box;
+}
+.palette-dot:hover {
+  transform: scale(1.2);
+}
+.palette-dot.active {
+  border-color: #FFFFFF;
+  box-shadow: 0 0 8px currentColor;
+  transform: scale(1.15);
+}
+
+/* ===================================================
+   Mobile Safe Area & Smooth Touch
+   =================================================== */
+.mobile-safe-bottom {
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}

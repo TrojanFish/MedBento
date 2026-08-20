@@ -144,6 +144,22 @@ def revoke_session_token(token: str):
     if token and token in VALID_SESSIONS:
         VALID_SESSIONS.remove(token)
 
+# IP Rate Limiter (Max 30 requests per minute per IP)
+IP_REQUEST_LOGS = {}
+
+def check_rate_limit(ip_address: str, max_requests: int = 30, window_seconds: int = 60) -> bool:
+    now = time.time()
+    if ip_address not in IP_REQUEST_LOGS:
+        IP_REQUEST_LOGS[ip_address] = []
+    # Retain timestamps strictly within sliding window
+    timestamps = [t for t in IP_REQUEST_LOGS[ip_address] if now - t < window_seconds]
+    if len(timestamps) >= max_requests:
+        IP_REQUEST_LOGS[ip_address] = timestamps
+        return False
+    timestamps.append(now)
+    IP_REQUEST_LOGS[ip_address] = timestamps
+    return True
+
 # Register additional mimetypes
 mimetypes.add_type("application/javascript", ".js")
 mimetypes.add_type("text/css", ".css")
@@ -544,6 +560,15 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps({"success": True}, ensure_ascii=False).encode("utf-8"))
 
     def handle_api_analyze(self, data):
+        client_ip = self.client_address[0] if self.client_address else "127.0.0.1"
+        if not check_rate_limit(client_ip, max_requests=30, window_seconds=60):
+            self.send_response(429)
+            self.send_cors_headers()
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": "请求过于频繁，请稍候再试 (Rate Limit Exceeded)。"}, ensure_ascii=False).encode("utf-8"))
+            return
+
         conf = get_env_config()
         api_key = conf["api_key"]
         model = conf["model"]
@@ -576,7 +601,7 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
                 }
             })
 
-        user_instruction = f"{SYSTEM_MEDICAL_PROMPT}\n\n【用户选择的风格模式】：{style}\n\n【输入的文献文本内容】：\n{text_content[:20000] if text_content else '（请结合上传的PDF报告进行全量分析）'}"
+        user_instruction = f"{SYSTEM_MEDICAL_PROMPT}\n\n【用户选择的风格模式】：{style}\n\n【输入的文献文本内容】：\n{text_content[:100000] if text_content else '（请结合上传的PDF报告进行全量分析）'}"
         parts.append({"text": user_instruction})
 
         gemini_payload = {
@@ -672,6 +697,15 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"error": f"模型返回内容 JSON 解析失败: {str(e)}"}, ensure_ascii=False).encode("utf-8"))
 
     def handle_api_fetch_url(self, data):
+        client_ip = self.client_address[0] if self.client_address else "127.0.0.1"
+        if not check_rate_limit(client_ip, max_requests=30, window_seconds=60):
+            self.send_response(429)
+            self.send_cors_headers()
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": "请求过于频繁，请稍候再试 (Rate Limit Exceeded)。"}, ensure_ascii=False).encode("utf-8"))
+            return
+
         url = data.get("url", "").strip()
         if not url:
             self.send_response(400)
