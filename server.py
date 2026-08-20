@@ -601,7 +601,7 @@ class MedBentoRequestHandler(BaseHTTPRequestHandler):
                 }
             })
 
-        user_instruction = f"{SYSTEM_MEDICAL_PROMPT}\n\n【用户选择的风格模式】：{style}\n\n【输入的文献文本内容】：\n{text_content[:100000] if text_content else '（请结合上传的PDF报告进行全量分析）'}"
+        user_instruction = f"{SYSTEM_MEDICAL_PROMPT}\n\n【用户选择的风格模式】：{style}\n\n【输入的文献文本内容】：\n{text_content[:1000000] if text_content else '（请结合上传的PDF报告进行全量分析）'}"
         parts.append({"text": user_instruction})
 
         gemini_payload = {

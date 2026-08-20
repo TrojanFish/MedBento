@@ -11,6 +11,7 @@
 const CardSlicer = {
   currentRatio: "ratio-3-4",
   currentTheme: "theme-dark",
+  currentAccent: "#00E5FF",
   currentDeckMode: "auto", // "auto", "5", "7", "8"
   currentAuthor: "Dr. 肿瘤前沿速递",
   currentBrand: "Oncopath AI",
@@ -234,6 +235,16 @@ const CardSlicer = {
       </div>
     `).join("");
 
+    // Apply custom accent color if active
+    if (this.currentAccent) {
+      document.querySelectorAll(".social-card-item").forEach(card => {
+        card.style.setProperty("--card-accent", this.currentAccent);
+        card.style.setProperty("--card-stat-color", this.currentAccent);
+        card.style.setProperty("--card-border", `${this.currentAccent}40`);
+        card.style.setProperty("--card-highlight-border", `${this.currentAccent}55`);
+      });
+    }
+
     // Initialize mini KM chart on Card 3 (if present in DOM)
     setTimeout(() => {
       this.initCard3MiniChart(data);
@@ -261,9 +272,44 @@ const CardSlicer = {
     cards.forEach(c => {
       c.classList.remove("theme-dark", "theme-light", "theme-emerald");
       c.classList.add(themeName);
+      if (this.currentAccent) {
+        c.style.setProperty("--card-accent", this.currentAccent);
+        c.style.setProperty("--card-stat-color", this.currentAccent);
+        c.style.setProperty("--card-border", `${this.currentAccent}40`);
+        c.style.setProperty("--card-highlight-border", `${this.currentAccent}55`);
+      }
     });
 
     // Re-render SVG KM chart with matching theme palette
+    const currentData = (typeof App !== "undefined" && App.currentData) || (window.app && window.app.currentData) || (typeof MedicalAnalyzer !== "undefined" && MedicalAnalyzer.DEFAULT_JCOG_DATA);
+    if (currentData) {
+      const container = document.querySelector(".card-km-container");
+      if (container) {
+        container.innerHTML = this.generateKMVectorSVG(currentData);
+      }
+    }
+  },
+
+  /**
+   * Set Custom Accent Color across all cards in Social View (Cyan / Purple / Gold / Red)
+   */
+  setAccentColor(color) {
+    this.currentAccent = color;
+    const cards = document.querySelectorAll(".social-card-item");
+    cards.forEach(card => {
+      card.style.setProperty("--card-accent", color);
+      card.style.setProperty("--card-stat-color", color);
+      card.style.setProperty("--card-border", `${color}40`);
+      card.style.setProperty("--card-highlight-border", `${color}55`);
+    });
+
+    // Update active SVG icons
+    document.querySelectorAll(".card-brand-text").forEach(span => {
+      const icon = span.parentElement?.querySelector("svg");
+      if (icon) icon.style.color = color;
+    });
+
+    // Re-render SVG KM curve with matching accent
     const currentData = (typeof App !== "undefined" && App.currentData) || (window.app && window.app.currentData) || (typeof MedicalAnalyzer !== "undefined" && MedicalAnalyzer.DEFAULT_JCOG_DATA);
     if (currentData) {
       const container = document.querySelector(".card-km-container");
@@ -742,12 +788,12 @@ const CardSlicer = {
     const isLight = this.currentTheme === "theme-light";
     const isEmerald = this.currentTheme === "theme-emerald";
 
-    const colorExp = isLight ? "#0369A1" : isEmerald ? "#34D399" : "#00E5FF";
+    const colorExp = this.currentAccent || (isLight ? "#0369A1" : isEmerald ? "#34D399" : "#00E5FF");
     const colorCtrl = isLight ? "#78716C" : isEmerald ? "#6EE7B7" : "#94A3B8";
     const gridColor = isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)";
     const textColor = isLight ? "#57534E" : "#94A3B8";
-    const fillGradientId = `km-grad-${this.currentTheme || 'theme-dark'}`;
-    const fillColorStart = isLight ? "rgba(3,105,161,0.25)" : isEmerald ? "rgba(52,211,153,0.25)" : "rgba(0,229,255,0.25)";
+    const fillGradientId = `km-grad-${this.currentTheme || 'theme-dark'}-${(this.currentAccent || 'cyan').replace('#','')}`;
+    const fillColorStart = this.currentAccent ? `${this.currentAccent}40` : (isLight ? "rgba(3,105,161,0.25)" : isEmerald ? "rgba(52,211,153,0.25)" : "rgba(0,229,255,0.25)");
 
     let km = data.kmData;
     if (!km || !Array.isArray(km.segmentectomyOS) || km.segmentectomyOS.length === 0) {

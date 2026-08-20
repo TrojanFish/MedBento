@@ -618,9 +618,9 @@ const App = {
         document.documentElement.style.setProperty("--card-accent", color);
         document.documentElement.style.setProperty("--cyan-glow", `${color}40`);
         
-        // Re-render active SVG charts with new accent
-        if (this.currentData && CardSlicer.initCard3MiniChart) {
-          CardSlicer.initCard3MiniChart(this.currentData);
+        // Directly sync and recolor all social media cards & KM curves!
+        if (typeof CardSlicer !== "undefined" && CardSlicer.setAccentColor) {
+          CardSlicer.setAccentColor(color);
         }
         this.showToast(`🎨 已切换至顶刊专属配色: ${e.currentTarget.title}`, "info");
       });
