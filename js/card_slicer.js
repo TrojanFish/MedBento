@@ -218,7 +218,7 @@ const CardSlicer = {
     container.innerHTML = cardsHtml.map((item, idx) => `
       <div class="social-card-wrapper">
         <!-- Pure High-Resolution Card Target for Export -->
-        <div id="social-card-${idx + 1}" class="social-card-item ${this.currentRatio} ${this.currentTheme}" data-card-index="${idx + 1}">
+        <div id="social-card-${idx + 1}" class="social-card-item ${this.currentRatio} ${this.currentTheme} palette-${this.currentPalette || 'cyan'}" data-card-index="${idx + 1}">
           ${item.html}
         </div>
 
@@ -234,16 +234,6 @@ const CardSlicer = {
         </div>
       </div>
     `).join("");
-
-    // Apply custom accent color if active
-    if (this.currentAccent) {
-      document.querySelectorAll(".social-card-item").forEach(card => {
-        card.style.setProperty("--card-accent", this.currentAccent);
-        card.style.setProperty("--card-stat-color", this.currentAccent);
-        card.style.setProperty("--card-border", `${this.currentAccent}40`);
-        card.style.setProperty("--card-highlight-border", `${this.currentAccent}55`);
-      });
-    }
 
     // Initialize mini KM chart on Card 3 (if present in DOM)
     setTimeout(() => {
@@ -272,12 +262,6 @@ const CardSlicer = {
     cards.forEach(c => {
       c.classList.remove("theme-dark", "theme-light", "theme-emerald");
       c.classList.add(themeName);
-      if (this.currentAccent) {
-        c.style.setProperty("--card-accent", this.currentAccent);
-        c.style.setProperty("--card-stat-color", this.currentAccent);
-        c.style.setProperty("--card-border", `${this.currentAccent}40`);
-        c.style.setProperty("--card-highlight-border", `${this.currentAccent}55`);
-      }
     });
 
     // Re-render SVG KM chart with matching theme palette
@@ -293,10 +277,34 @@ const CardSlicer = {
   /**
    * Set Custom Accent Color across all cards in Social View (Cyan / Purple / Gold / Red)
    */
-  setAccentColor(color) {
+  setAccentColor(colorOrKey) {
+    let key = "cyan";
+    let color = "#00E5FF";
+
+    if (colorOrKey === "#00E5FF" || colorOrKey === "cyan") {
+      key = "cyan";
+      color = "#00E5FF";
+    } else if (colorOrKey === "#A855F7" || colorOrKey === "purple") {
+      key = "purple";
+      color = "#C084FC";
+    } else if (colorOrKey === "#F59E0B" || colorOrKey === "gold") {
+      key = "gold";
+      color = "#FBBF24";
+    } else if (colorOrKey === "#F43F5E" || colorOrKey === "red") {
+      key = "red";
+      color = "#FB7185";
+    } else if (colorOrKey) {
+      color = colorOrKey;
+      key = "custom";
+    }
+
+    this.currentPalette = key;
     this.currentAccent = color;
+
     const cards = document.querySelectorAll(".social-card-item");
     cards.forEach(card => {
+      card.classList.remove("palette-cyan", "palette-purple", "palette-gold", "palette-red");
+      card.classList.add(`palette-${key}`);
       card.style.setProperty("--card-accent", color);
       card.style.setProperty("--card-stat-color", color);
       card.style.setProperty("--card-border", `${color}40`);

@@ -1159,6 +1159,83 @@ body {
   color: #ECFDF5;
 }
 
+/* ==========================================================================
+   PALETTE ACCENT OVERLAYS (🔷 Cyan / 🟣 Purple / 🟡 Gold / 🔴 Red)
+   ========================================================================== */
+
+/* 🔷 1. Lancet / NEJM Cyan (科技蓝) */
+.social-card-item.palette-cyan {
+  --card-accent: #00E5FF;
+  --card-stat-color: #00E5FF;
+  --card-stat-shadow: 0 0 24px rgba(0, 229, 255, 0.45);
+  --card-border: rgba(0, 229, 255, 0.35);
+  --card-highlight-bg: linear-gradient(135deg, rgba(0, 229, 255, 0.14) 0%, rgba(2, 132, 199, 0.08) 100%);
+  --card-highlight-border: rgba(0, 229, 255, 0.5);
+  --card-badge-bg: rgba(0, 229, 255, 0.15);
+  --card-badge-border: rgba(0, 229, 255, 0.45);
+  --card-badge-color: #00E5FF;
+  --card-glow: 0 0 30px -5px rgba(0, 229, 255, 0.3);
+}
+
+/* 🟣 2. Nature Biotech Purple (前沿紫) */
+.social-card-item.palette-purple {
+  --card-accent: #C084FC;
+  --card-stat-color: #E879F9;
+  --card-stat-shadow: 0 0 24px rgba(192, 132, 252, 0.5);
+  --card-border: rgba(168, 85, 247, 0.45);
+  --card-highlight-bg: linear-gradient(135deg, rgba(168, 85, 247, 0.18) 0%, rgba(217, 70, 239, 0.12) 100%);
+  --card-highlight-border: rgba(192, 132, 252, 0.55);
+  --card-badge-bg: rgba(168, 85, 247, 0.2);
+  --card-badge-border: rgba(192, 132, 252, 0.5);
+  --card-badge-color: #E879F9;
+  --card-glow: 0 0 30px -5px rgba(168, 85, 247, 0.35);
+}
+
+/* 🟡 3. ASCO Classic Amber (典雅金) */
+.social-card-item.palette-gold {
+  --card-accent: #FBBF24;
+  --card-stat-color: #FCD34D;
+  --card-stat-shadow: 0 0 24px rgba(245, 158, 11, 0.5);
+  --card-border: rgba(245, 158, 11, 0.45);
+  --card-highlight-bg: linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(217, 119, 6, 0.1) 100%);
+  --card-highlight-border: rgba(245, 158, 11, 0.55);
+  --card-badge-bg: rgba(245, 158, 11, 0.2);
+  --card-badge-border: rgba(245, 158, 11, 0.5);
+  --card-badge-color: #FCD34D;
+  --card-glow: 0 0 30px -5px rgba(245, 158, 11, 0.35);
+}
+
+/* 🔴 4. Alert Coral Red (活力红) */
+.social-card-item.palette-red {
+  --card-accent: #FB7185;
+  --card-stat-color: #FDA4AF;
+  --card-stat-shadow: 0 0 24px rgba(244, 63, 94, 0.5);
+  --card-border: rgba(244, 63, 94, 0.45);
+  --card-highlight-bg: linear-gradient(135deg, rgba(244, 63, 94, 0.18) 0%, rgba(225, 29, 72, 0.12) 100%);
+  --card-highlight-border: rgba(244, 63, 94, 0.55);
+  --card-badge-bg: rgba(244, 63, 94, 0.2);
+  --card-badge-border: rgba(244, 63, 94, 0.5);
+  --card-badge-color: #FDA4AF;
+  --card-glow: 0 0 30px -5px rgba(244, 63, 94, 0.35);
+}
+
+.sc-highlight-card {
+  background: var(--card-highlight-bg, rgba(15, 23, 42, 0.75));
+  border: 1px solid var(--card-highlight-border, rgba(0, 229, 255, 0.35));
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin: 6px 0;
+  box-shadow: var(--card-glow, none);
+  transition: all 0.3s ease;
+}
+
+.badge-jcog {
+  background: var(--card-badge-bg, rgba(0, 229, 255, 0.15)) !important;
+  border: 1px solid var(--card-badge-border, rgba(0, 229, 255, 0.45)) !important;
+  color: var(--card-badge-color, var(--card-accent)) !important;
+  transition: all 0.3s ease;
+}
+
 /* Card Common Elements using Theme Variables */
 .card-header-bar {
   display: flex;
